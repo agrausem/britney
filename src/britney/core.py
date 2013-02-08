@@ -138,6 +138,10 @@ class SporeMethod(object):
     :param global_formats: a list of formats accepted for the whole client.
     """
 
+    PAYLOAD_HTTP_METHODS = ('POST', 'PUT', 'PATCH')
+    HTTP_METHODS = PAYLOAD_HTTP_METHODS + ('GET', 'TRACE', 'OPTIONS', 'DELETE',
+            'HEAD')
+
     def __new__(cls, *args, **kwargs):
         errors = {}
 
@@ -243,7 +247,19 @@ class SporeMethod(object):
         def build_payload(self, **kwargs):
             """
             """
-            pass
+            payload = kwargs.pop('payload', None)
+
+            if payload is None and self.required_payload:
+                raise SporeMethodCallError('Payload is required for this '
+                        'function')
+
+            if payload and self.method in self.PAYLOAD_HTTP_METHODS:
+                raise SporeMethodCallError(
+                    'Payload requires one of these HTTP Methods: {}'.format(
+                        ', '.join(self.PAYLOAD_HTTP_METHODS))
+                )
+
+            return payload
 
         def build_params(self, **kwargs):
             """ Check aguments passed to call method and build the spore
