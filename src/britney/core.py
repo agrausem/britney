@@ -9,7 +9,9 @@ in a SPORE description. See https://github.com/SPORE/specifications/blob/master/
 more informations about SPORE descriptions
 """
 
+
 from requests.compat import urlparse
+from requests.compat import is_py2
 
 from .errors import SporeMethodBuilder
 from .errors import SporeClientBuilder
@@ -53,10 +55,9 @@ class Spore(object):
                 method = SporeMethod(
                     method_name, 
                     base_url=kwargs['base_url'],
-                    user_agent='', 
                     middlewares=cls.middlewares,
                     global_authentication=kwargs.get('authentication', None),
-                    global_formats=kwargs.get('formats', None)
+                    global_formats=kwargs.get('formats', None),
                     **method_description
                 )
             except SporeMethodBuilder as method_error:
@@ -69,8 +70,8 @@ class Spore(object):
 
         return super(Spore, cls).__new__(cls, *args, **kwargs)
 
-    def __init__(self, name, base_url, authority='', formats=None, version='',
-            authentication=None, methods=None, meta=None): 
+    def __init__(self, name='', base_url='', authority='', formats=None, 
+            version='', authentication=None, methods=None, meta=None): 
         self.name = name
         self.authority = authority
         self.base_url = base_url
@@ -153,14 +154,14 @@ class SporeMethod(object):
         documentation = kwargs.get('documentation', '')
         description = kwargs.get('description', '')
 
-        cls.__doc__ = documentation if documentation else description
+        setattr(cls, __doc__, documentation if documentation else description)
 
         return super(SporeMethod, cls).__new__(cls, *args, **kwargs)
 
-    def __init__(self, name, api_base_url, method, path, required_params=None,
-            optional_params=None, expected_status=None, description='',
-            authentication=False, formats=None, base_url='', documentation='', 
-            middlewares=None, global_authentication=None,
+    def __init__(self, name='', api_base_url='', method='', path='', 
+            required_params=None, optional_params=None, expected_status=None,
+            description='', authentication=False, formats=None, base_url='',
+            documentation='', middlewares=None, global_authentication=None,
             global_formats=None):
 
         self.name = name
@@ -197,28 +198,30 @@ class SporeMethod(object):
         the WSGI environnment keys http://wsgi.readthedocs.org/en/latest/definitions.html
         """
 
-        def script_name(self):
-            if self.parsed_url.path == '/':
-                return ''
-            return self.parsed_url.path
 
-        def userinfo(self):
-            if self.parsed_url.username is None:
-                return ''
-            return ('{0.username}:{0.password}'.format(self.parsed_url))
+        def script_name(path):
+            return '' if path == '/' else path
 
-        def port(self):
-            if self.parsed_url.scheme == 'http':
+
+        def userinfo(parsed_url):
+            if parsed_url.username is None:
+                return ''
+            return '{0.username}:{0.password}'.format(parsed_url)
+
+
+        def server_port(parsed_url):
+            if parsed_url.scheme == 'http':
                 return '80'
-            elif self.parsed_url.scheme == 'https':
+            elif parsed_url.scheme == 'https':
                 return '443'
-            return self.parsed_url.port
+            return parsed_url.port
+
 
         return {
             'REQUEST_METHOD': self.method,
-            'SERVER_NAME': self.parsed_url.host,
-            'SERVER_PORT': self.port(),
-            'SCRIPT_NAME': self.script_name(),
+            'SERVER_NAME': self.parsed_url.hostname,
+            'SERVER_PORT': server_port(self.parsed_url), 
+            'SCRIPT_NAME': script_name(self.parsed_url.path),
             'PATH_INFO': self.path,
             'QUERY_STRING': '',
             'HTTP_USER_AGENT': 'britney',
@@ -228,7 +231,7 @@ class SporeMethod(object):
             'spore.payload': '',
             'spore.errors': '',
             'spore.url_scheme': self.parsed_url.scheme,
-            'spore.userinfo': self.userinfo(),
+            'spore.userinfo': userinfo(self.parsed_url),
             'spore.format': self.formats
         }
 
@@ -240,10 +243,31 @@ class SporeMethod(object):
             pass
 
         def build_params(self, **kwargs):
-            pass
+            """ Check aguments passed to call method and build the spore
+            parameters value
+            """
+
+            req_params = frozenset(self.required_params)
+            all_params = req_params | frozenset(self.optional_params)
+            passed_args = is_py2 and kwargs.viewkeys() or kwargs.keys()
+
+            # nothing to do here
+            if not all_params and not passed_args:
+                return []
+
+            # some required parameters are missing
+            if not req_params.issubset(passed_args):
+                raise
+            
+            # too much arguments passed to func
+            if (passed_args - all_params):
+                raise
+            
+            return list(is_py2 and kwargs.viewitems() or kwargs.items())
+            
 
         environ = self.base_environ()
         environ.update({
-            'spore.payload': self.build_payload(**kwargs),
-            'spore.params': self.build_params(**kwargs)
+            'spore.payload': build_payload(self, **kwargs),
+            'spore.params': build_params(self, **kwargs)
         })
