@@ -13,8 +13,9 @@ more informations about SPORE descriptions
 from requests.compat import urlparse
 from requests.compat import is_py2
 
-from .errors import SporeMethodBuilder
-from .errors import SporeClientBuilder
+from .errors import SporeMethodBuildError
+from .errors import SporeMethodCallError
+from .errors import SporeClientBuildError
 
 
 class Spore(object):
@@ -60,13 +61,13 @@ class Spore(object):
                     global_formats=kwargs.get('formats', None),
                     **method_description
                 )
-            except SporeMethodBuilder as method_error:
+            except SporeMethodBuildError as method_error:
                 method_errors[method_name] = method_error
             else:
                 setattr(cls, method_name, method)
             
         if errors or method_errors:
-            raise SporeClientBuilder(errors, method_errors)
+            raise SporeClientBuildError(errors, method_errors)
 
         return super(Spore, cls).__new__(cls, *args, **kwargs)
 
@@ -149,7 +150,7 @@ class SporeMethod(object):
             'the wanted resource(s)'
 
         if errors:
-            raise SporeMethodBuilder(errors)
+            raise SporeMethodBuildError(errors)
         
         documentation = kwargs.get('documentation', '')
         description = kwargs.get('description', '')
@@ -240,6 +241,8 @@ class SporeMethod(object):
         """
 
         def build_payload(self, **kwargs):
+            """
+            """
             pass
 
         def build_params(self, **kwargs):
@@ -257,11 +260,13 @@ class SporeMethod(object):
 
             # some required parameters are missing
             if not req_params.issubset(passed_args):
-                raise
+                raise SporeMethodCallError('Required parameters are missing', 
+                        req_params - all_params)
             
             # too much arguments passed to func
             if (passed_args - all_params):
-                raise
+                raise SporeMethodCallError('Too much parameter',
+                        passed_args - all_params)
             
             return list(is_py2 and kwargs.viewitems() or kwargs.items())
             
