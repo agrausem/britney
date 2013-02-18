@@ -26,7 +26,8 @@ class SporeMethodBuildError(Exception):
 
 class SporeMethodCallError(Exception):
 
-    def __init__(self, parameters, *args, **kwargs):
+    def __init__(self, cause, *args, **kwargs):
+        self.expected_values = kwargs.pop('expected', [])
         super(self, SporeMethodCallError).__init__(*args, **kwargs)
-        self.parameters = parameters
+        self.cause  = cause
 
