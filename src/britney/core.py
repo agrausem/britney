@@ -112,14 +112,14 @@ class SporeMethod(object):
     """ A method that handles request and response on the REST Web Service.
 
     :param name: name of the method (required)
-    :parama api_base_url: the base url for the REST Web Service (required)
+    :param api_base_url: the base url for the REST Web Service (required)
     :param method: the http method to use (eg: 'GET', 'POST', etc) (required)
     :param path: the path to the wanted resource (eg: '/api/users') (required)
     :param required_params: a list parameters that will be used to build the
     url path (defaults to None)
     :param optional_params: a list of parameters that wille be used to build
     the request query
-    :param expected_status: a list of expected status for the reponse (defualts
+    :param expected_status: a list of expected status for the reponse (defaults
     to None).
     :param description: a short description for the method (defaults to '')
     :param middlewares: a list of the middlewares that will be applied to the
@@ -277,12 +277,12 @@ class SporeMethod(object):
             # some required parameters are missing
             if not req_params.issubset(passed_args):
                 raise SporeMethodCallError('Required parameters are missing', 
-                        req_params - all_params)
+                        expected=req_params - all_params)
             
             # too much arguments passed to func
             if (passed_args - all_params):
                 raise SporeMethodCallError('Too much parameter',
-                        passed_args - all_params)
+                        expected=passed_args - all_params)
             
             return list(is_py2 and kwargs.viewitems() or kwargs.items())
             
