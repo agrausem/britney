@@ -153,6 +153,14 @@ class SporeMethod(object):
             errors['path'] = 'A method description should define the path to '
             'the wanted resource(s)'
 
+        if not kwargs.get('name', ''):
+            errors['name'] = 'A method description should define a name'
+
+        if not kwargs.get('api_base_url', '') \
+                and not kwargs.get('base_url', ''):
+            errors['base_url'] = 'A method description should define a base '
+            'url if not defined for the whle client'
+
         if errors:
             raise SporeMethodBuildError(errors)
         
@@ -165,7 +173,7 @@ class SporeMethod(object):
 
     def __init__(self, name='', api_base_url='', method='', path='', 
             required_params=None, optional_params=None, expected_status=None,
-            description='', authentication=False, formats=None, base_url='',
+            description='', authentication=None, formats=None, base_url='',
             documentation='', middlewares=None, global_authentication=None,
             global_formats=None):
 
@@ -205,7 +213,7 @@ class SporeMethod(object):
 
 
         def script_name(path):
-            return '' if path == '/' else path
+            return path.rstrip('/')
 
 
         def userinfo(parsed_url):

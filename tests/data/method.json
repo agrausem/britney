@@ -1,0 +1,31 @@
+[
+    {
+        "base_url": "https://github.com/api/",
+        "path": "/users",
+        "method": "GET",
+        "environ": {
+            "REQUEST_METHOD": "GET",
+            "SERVER_NAME": "github.com",
+            "SERVER_PORT": "443", 
+            "SCRIPT_NAME": "/api",
+            "PATH_INFO": "/users",
+            "spore.url_scheme": "https", 
+            "spore.userinfo": ""
+        }
+
+    },
+    {
+        "base_url": "http://my_host/redmine",
+        "path": "/users.:format",
+        "method": "POST",
+        "environ": {
+            "REQUEST_METHOD": "POST",
+            "SERVER_NAME": "my_host",
+            "SERVER_PORT": "80", 
+            "SCRIPT_NAME": "/redmine",
+            "PATH_INFO": "/users.:format",
+            "spore.url_scheme": "http",
+            "spore.userinfo": ""
+        }
+    }
+]
