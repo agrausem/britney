@@ -25,14 +25,15 @@ class TestMethodBuilder(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def r_test_missing_required_parameters(self):
+    def test_missing_required_parameters(self):
         """
         """
         with self.assertRaises(SporeMethodBuildError) as build_error:
             SporeMethod()
 
+        error = build_error.exception
 
-        self.assertListEqual(sorted(build_error.errors.keys()), ['base_url',
+        self.assertListEqual(sorted(error.errors.keys()), ['base_url',
             'method', 'name', 'path'])
 
     def test_base_url(self):

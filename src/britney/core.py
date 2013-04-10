@@ -13,9 +13,7 @@ more informations about SPORE descriptions
 from requests.compat import urlparse
 from requests.compat import is_py2
 
-from .errors import SporeMethodBuildError
-from .errors import SporeMethodCallError
-from .errors import SporeClientBuildError
+from . import errors
 
 
 class Spore(object):
@@ -36,16 +34,16 @@ class Spore(object):
     """
 
     def __new__(cls, *args, **kwargs):
-        errors = {}
+        spec_errors = {}
 
         if not kwargs.get('name', ''):
-            errors['name'] = 'A name for this client is required'
+            spec_errors['name'] = 'A name for this client is required'
 
         if not kwargs.get('methods', {}):
-            errors['methods'] = 'One method is required to create the client'
+            spec_errors['methods'] = 'One method is required to create the client'
 
         if not kwargs.get('base_url', ''):
-            errors['base_url'] = 'A base URL to the REST Web Service is '
+            spec_errors['base_url'] = 'A base URL to the REST Web Service is '
             'required'
 
         setattr(cls, 'middlewares', [])
@@ -61,13 +59,14 @@ class Spore(object):
                     global_formats=kwargs.get('formats', None),
                     **method_description
                 )
-            except SporeMethodBuildError as method_error:
+            except errors.SporeMethodBuildError as method_error:
                 method_errors[method_name] = method_error
             else:
                 setattr(cls, method_name, method)
             
-        if errors or method_errors:
-            raise SporeClientBuildError(errors, method_errors)
+        if spec_errors or method_errors:
+            raise errors.SporeClientBuildError(spec_errors,
+                    method_errors)
 
         return super(Spore, cls).__new__(cls, *args, **kwargs)
 
@@ -143,26 +142,26 @@ class SporeMethod(object):
             'HEAD')
 
     def __new__(cls, *args, **kwargs):
-        errors = {}
+        method_errors = {}
 
         if not kwargs.get('method', ''):
-            errors['method'] = 'A method description should define the HTTP '
+            method_errors['method'] = 'A method description should define the HTTP '
             'Method to use'
 
         if not kwargs.get('path', ''):
-            errors['path'] = 'A method description should define the path to '
+            method_errors['path'] = 'A method description should define the path to '
             'the wanted resource(s)'
 
         if not kwargs.get('name', ''):
-            errors['name'] = 'A method description should define a name'
+            method_errors['name'] = 'A method description should define a name'
 
         if not kwargs.get('api_base_url', '') \
                 and not kwargs.get('base_url', ''):
-            errors['base_url'] = 'A method description should define a base '
+            method_errors['base_url'] = 'A method description should define a base '
             'url if not defined for the whle client'
 
-        if errors:
-            raise SporeMethodBuildError(errors)
+        if method_errors:
+            raise errors.SporeMethodBuildError(method_errors)
         
         documentation = kwargs.get('documentation', '')
         description = kwargs.get('description', '')
@@ -229,14 +228,15 @@ class SporeMethod(object):
                 return '443'
             return parsed_url.port
 
+        path_info, query_string = self.path.split('?')
 
         return {
             'REQUEST_METHOD': self.method,
             'SERVER_NAME': self.parsed_url.hostname,
             'SERVER_PORT': server_port(self.parsed_url), 
             'SCRIPT_NAME': script_name(self.parsed_url.path),
-            'PATH_INFO': self.path,
-            'QUERY_STRING': '',
+            'PATH_INFO': path_info,
+            'QUERY_STRING': query_string,
             'HTTP_USER_AGENT': 'britney',
             'spore.expected_status': self.expected_status,
             'spore.authentication': self.authentication,
@@ -248,6 +248,21 @@ class SporeMethod(object):
             'spore.format': self.formats
         }
 
+    def check_status(self, response):
+        """ Checks reponse status in fact of the *expected_status*
+        attribute
+
+        :param response: the response from the REST service
+        :type response: requests.Response
+        :raises: ~britney.errors.SporeMethodStatusError
+        """
+        status = int(response.status)
+        checklist = [status == expected_status for expected_status
+                in self.expected_status]
+        if checklist and not any(checklist):
+            raise errors.SporeMethodStatusError()
+
+
     def __call__(self, **kwargs):
         """ Calls the method with required parameters
         """
@@ -258,11 +273,11 @@ class SporeMethod(object):
             payload = kwargs.pop('payload', None)
 
             if payload is None and self.required_payload:
-                raise SporeMethodCallError('Payload is required for this '
-                        'function')
+                raise errors.SporeMethodCallError('Payload is required for '
+                    'this function')
 
             if payload and self.method in self.PAYLOAD_HTTP_METHODS:
-                raise SporeMethodCallError(
+                raise errors.SporeMethodCallError(
                     'Payload requires one of these HTTP Methods: {}'.format(
                         ', '.join(self.PAYLOAD_HTTP_METHODS))
                 )
@@ -284,12 +299,12 @@ class SporeMethod(object):
 
             # some required parameters are missing
             if not req_params.issubset(passed_args):
-                raise SporeMethodCallError('Required parameters are missing', 
+                raise errors.SporeMethodCallError('Required parameters are missing', 
                         expected=req_params - all_params)
             
             # too much arguments passed to func
             if (passed_args - all_params):
-                raise SporeMethodCallError('Too much parameter',
+                raise errors.SporeMethodCallError('Too much parameter',
                         expected=passed_args - all_params)
             
             return list(is_py2 and kwargs.viewitems() or kwargs.items())

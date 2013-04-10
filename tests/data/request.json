@@ -1,0 +1,64 @@
+[
+    {
+        "env": {
+            "REQUEST_METHOD": "POST",
+            "SERVER_NAME": "my_host.org",
+            "SERVER_PORT": "80", 
+            "SCRIPT_NAME": "/redmine",
+            "PATH_INFO": "/users.:format",
+            "spore.url_scheme": "http",
+            "spore.userinfo": "",
+            "spore.params": [["format", "json"]]
+        },
+        "url": "http://my_host.org/redmine/users.json"
+    },{
+        "env": {
+            "REQUEST_METHOD": "POST",
+            "SERVER_NAME": "my_host.org",
+            "SERVER_PORT": "8080", 
+            "SCRIPT_NAME": "/redmine",
+            "PATH_INFO": "/users/:id.:format",
+            "spore.url_scheme": "http",
+            "spore.userinfo": "toto:123456789",
+            "spore.params": [["id", "9"], ["format", "xml"]]
+        },
+        "url": "http://toto:123456789@my_host.org:8080/redmine/users/9.xml"
+    },{
+        "env": {
+            "REQUEST_METHOD": "POST",
+            "SERVER_NAME": "my_host.org",
+            "SERVER_PORT": "443", 
+            "SCRIPT_NAME": "",
+            "PATH_INFO": "/users/:id.:format",
+            "spore.url_scheme": "https",
+            "spore.userinfo": "toto:123456789",
+            "spore.params": [["id", "9"], ["format", "xml"]]
+        },
+        "url": "https://toto:123456789@my_host.org/users/9.xml"
+    },{
+        "env": {
+            "REQUEST_METHOD": "POST",
+            "SERVER_NAME": "my_host.org",
+            "SERVER_PORT": "8081", 
+            "SCRIPT_NAME": "/redmine",
+            "PATH_INFO": "/users/:id.:format",
+            "spore.url_scheme": "https",
+            "spore.userinfo": "",
+            "spore.params": [["id", "9"], ["format", "xml"]]
+        },
+        "url": "https://my_host.org:8081/redmine/users/9.xml"
+    },{
+        "env": {
+            "HTTP_HOST": "host-test.org:8082",
+            "REQUEST_METHOD": "POST",
+            "SERVER_NAME": "my_host.org",
+            "SERVER_PORT": "443", 
+            "SCRIPT_NAME": "",
+            "PATH_INFO": "/users/:id.:format",
+            "spore.url_scheme": "https",
+            "spore.userinfo": "toto:123456789",
+            "spore.params": [["id", "9"], ["format", "xml"]]
+        },
+        "url": "https://host-test.org:8082/users/9.xml"
+    }
+]

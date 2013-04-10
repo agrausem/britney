@@ -31,3 +31,7 @@ class SporeMethodCallError(Exception):
         super(SporeMethodCallError, self).__init__(*args, **kwargs)
         self.cause  = cause
 
+class SporeMethodStatusError(Exception):
+    """
+    """
+    pass
