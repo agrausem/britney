@@ -228,8 +228,12 @@ class SporeMethod(object):
                 return '443'
             return parsed_url.port
 
-        path_info, query_string = self.path.split('?')
-
+        path = self.path.split('?')
+        if len(path) > 1:
+            path_info, query_string = path
+        else:
+            path_info, query_string = path[0], ''
+ 
         return {
             'REQUEST_METHOD': self.method,
             'SERVER_NAME': self.parsed_url.hostname,

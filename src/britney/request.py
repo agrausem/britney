@@ -3,9 +3,8 @@
 """
 """
 
-from functools import partial
 import re
-from requests.compat import quote
+from requests.compat import urlunparse
 
 
 class RequestBuilder(object):
@@ -14,13 +13,17 @@ class RequestBuilder(object):
 
     def __init__(self, env):
         self.env = env
+        self.__query = []
+        print self.env
+
 
     @property
-    def base_url(self):
-        """
-        """
-        url = '{0.env[spore.url_scheme]}://{0.netloc}'.format(self)
-        return url + quote(self.env['SCRIPT_NAME'])
+    def scheme(self):
+        return self.env['spore.url_scheme']
+
+    @property
+    def userinfo(self):
+        return self.env.get('spore.userinfo', '')
 
     @property
     def netloc(self):
@@ -31,12 +34,12 @@ class RequestBuilder(object):
         else:
             netloc = ''
 
-            if self.env.get('spore.userinfo', ''):
-                netloc += '{0[spore.userinfo]}@'.format(self.env)
+            if self.userinfo:
+                netloc += '{}@'.format(self.userinfo)
             
             netloc += self.env['SERVER_NAME']
 
-            if self.env['spore.url_scheme'] == 'https':
+            if self.scheme == 'https':
                 if self.env['SERVER_PORT'] != '443':
                     netloc += ':{0[SERVER_PORT]}'.format(self.env)
             else:
@@ -50,22 +53,40 @@ class RequestBuilder(object):
         """
         params = self.env['spore.params']
         path_info = self.env['PATH_INFO']
-        query_string = self.env['QUERY_STRING']
 
         for parameter, value in params:
-            p_keyword = re.compile(r':%s' % parameter)
-            path_info, changed = quote(p_keyword.subn(value, path_info))
+            path_info, changed = re.subn(r':%s' % parameter, value, path_info)
             if changed:
                 continue
-            else:
-                query_string, changed = quote(p_keyword.subn(value, path_info))
-                if not changed:
-                    query_string += quote('&%s=%s') % (parameter, value)
+            self.__query.append((parameter, value))
+        return self.env['SCRIPT_NAME'] + path_info
+    
+    @property
+    def query(self):
+        """
+        """
+        params = self.env['spore.params']
+        query_string = self.env['QUERY_STRING']
 
-        return path_info + '?' + query_string
+        if not self.__query:
+            path = self.path
 
+        for parameter, value in params:
+            query_string, changed = re.subn(r':%s' % parameter, value,
+                    query_string)
+            if changed and (parameter, value) in self.__query:
+                self.__query.remove((parameter, value))
+
+        if query_string and self.__query:
+            query_string += '&'
+
+        query_string += '&'.join('{0[0]}={0[1]}'.format(item) for item in
+                self.__query)
+
+        return query_string
 
     def get_url(self):
         """
         """
-        return self.base_url + self.path
+        return urlunparse((self.scheme, self.netloc, self.path, '', self.query,
+            ''))
