@@ -253,6 +253,47 @@ class SporeMethod(object):
             'wsgi.url_scheme': parsed_base_url.scheme,
         }
 
+    def build_payload(self, data):
+        """
+        """
+
+        if data is None and self.required_payload:
+            raise errors.SporeMethodCallError('Payload is required for '
+                'this function')
+
+        if data and self.method in self.PAYLOAD_HTTP_METHODS:
+            raise errors.SporeMethodCallError(
+                'Payload requires one of these HTTP Methods: {}'.format(
+                    ', '.join(self.PAYLOAD_HTTP_METHODS))
+            )
+
+        return data
+    
+    def build_params(self, **kwargs):
+        """ Check aguments passed to call method and build the spore
+        parameters value
+        """
+
+        req_params = frozenset(self.required_params)
+        all_params = req_params | frozenset(self.optional_params)
+        passed_args = is_py2 and kwargs.viewkeys() or kwargs.keys()
+
+        # nothing to do here
+        if not all_params and not passed_args:
+            return []
+
+        # some required parameters are missing
+        if not req_params.issubset(passed_args):
+            raise errors.SporeMethodCallError('Required parameters are missing', 
+                    expected=req_params - all_params)
+        
+        # too much arguments passed to func
+        if (passed_args - all_params):
+            raise errors.SporeMethodCallError('Too much parameter',
+                    expected=passed_args - all_params)
+        
+        return list(is_py2 and kwargs.viewitems() or kwargs.items())
+
     def check_status(self, response):
         """ Checks reponse status in fact of the *expected_status*
         attribute
@@ -272,57 +313,16 @@ class SporeMethod(object):
         """ Calls the method with required parameters
         """
 
-        def build_payload(self, **kwargs):
-            """
-            """
-            payload = kwargs.pop('payload', None)
-
-            if payload is None and self.required_payload:
-                raise errors.SporeMethodCallError('Payload is required for '
-                    'this function')
-
-            if payload and self.method in self.PAYLOAD_HTTP_METHODS:
-                raise errors.SporeMethodCallError(
-                    'Payload requires one of these HTTP Methods: {}'.format(
-                        ', '.join(self.PAYLOAD_HTTP_METHODS))
-                )
-
-            return payload
-
-        def build_params(self, **kwargs):
-            """ Check aguments passed to call method and build the spore
-            parameters value
-            """
-
-            req_params = frozenset(self.required_params)
-            all_params = req_params | frozenset(self.optional_params)
-            passed_args = is_py2 and kwargs.viewkeys() or kwargs.keys()
-
-            # nothing to do here
-            if not all_params and not passed_args:
-                return []
-
-            # some required parameters are missing
-            if not req_params.issubset(passed_args):
-                raise errors.SporeMethodCallError('Required parameters are missing', 
-                        expected=req_params - all_params)
-            
-            # too much arguments passed to func
-            if (passed_args - all_params):
-                raise errors.SporeMethodCallError('Too much parameter',
-                        expected=passed_args - all_params)
-            
-            return list(is_py2 and kwargs.viewitems() or kwargs.items())
-            
+        data = kwargs.pop('payload', None)
 
         environ = self.base_environ()
         environ.update({
-            'spore.payload': build_payload(self, **kwargs),
-            'spore.params': build_params(self, **kwargs)
+            'spore.payload': self.build_payload(data),
+            'spore.params': self.build_params(**kwargs)
         })
 
-        prepared_request = RequestBuilder(environ)()
-        response = Session(prepared_request, verify=True)
+        prepared_request = RequestBuilder(environ)
+        response = Session(prepared_request(), verify=True)
 
         self.check_status(response)
 
