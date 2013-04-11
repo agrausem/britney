@@ -26,4 +26,4 @@ class TestRequestBuilderUrl(unittest.TestCase):
                 self.assertEqual(getattr(property_, built_request),
                         test_data[property_])
             """
-            self.assertEqual(built_request.get_url(), test_data['url'])
+            self.assertEqual(built_request.uri, test_data['url'])

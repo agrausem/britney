@@ -4,7 +4,8 @@
 """
 
 import re
-from requests.compat import urlunparse
+from requests import Request
+from requests.compat import quote
 
 
 class RequestBuilder(object):
@@ -13,80 +14,80 @@ class RequestBuilder(object):
 
     def __init__(self, env):
         self.env = env
-        self.__query = []
-        print self.env
+        self.path_info = env['PATH_INFO']
+        self.query_string = env.get('QUERY_STRING', '')
 
+        # building path and query with params submitted
+        for param, value in env['spore.params']:
+            self.path_info, p_changed = re.subn(':%s' % param, value, 
+                    self.path_info)
+            self.query_string, q_changed = re.subn(':%s' % param, value,
+                    self.query_string)
+            if not p_changed and not q_changed:
+                self.query_string += '&%s=%s' % (param, value)
+
+        # correct query string
+        if self.query_string.startswith('&'):
+            self.query_string = self.query_string[1:]
 
     @property
-    def scheme(self):
-        return self.env['spore.url_scheme']
-
-    @property
-    def userinfo(self):
-        return self.env.get('spore.userinfo', '')
-
-    @property
-    def netloc(self):
+    def application_uri(self):
         """
         """
+        uri = self.env['wsgi.url_scheme'] + '://'
+
         if self.env.get('HTTP_HOST', ''):
-            netloc = self.env['HTTP_HOST']
+            uri += self.env['HTTP_HOST']
         else:
-            netloc = ''
-
-            if self.userinfo:
-                netloc += '{}@'.format(self.userinfo)
+            if self.env['spore.userinfo']:
+                uri += self.env['spore.userinfo'] + '@'
             
-            netloc += self.env['SERVER_NAME']
+            uri += self.env['SERVER_NAME']
 
-            if self.scheme == 'https':
+            if self.env['wsgi.url_scheme'] == 'https':
                 if self.env['SERVER_PORT'] != '443':
-                    netloc += ':{0[SERVER_PORT]}'.format(self.env)
+                    uri += ':' + self.env['SERVER_PORT']
             else:
                 if self.env['SERVER_PORT'] != '80':
-                    netloc += ':{0[SERVER_PORT]}'.format(self.env)
-        return netloc
+                    uri += ':' + self.env['SERVER_PORT']
 
-    @property
-    def path(self):
-        """
-        """
-        params = self.env['spore.params']
-        path_info = self.env['PATH_INFO']
-
-        for parameter, value in params:
-            path_info, changed = re.subn(r':%s' % parameter, value, path_info)
-            if changed:
-                continue
-            self.__query.append((parameter, value))
-        return self.env['SCRIPT_NAME'] + path_info
+        return uri + quote(self.env['SCRIPT_NAME'] or '/')
     
     @property
-    def query(self):
+    def uri(self):
         """
         """
-        params = self.env['spore.params']
-        query_string = self.env['QUERY_STRING']
+        uri = self.application_uri
 
-        if not self.__query:
-            path = self.path
+        path_info = quote(self.path_info, safe='/=;,')
+        if not self.env['SCRIPT_NAME']:
+            uri += path_info[1:]
+        else:
+            uri += path_info
 
-        for parameter, value in params:
-            query_string, changed = re.subn(r':%s' % parameter, value,
-                    query_string)
-            if changed and (parameter, value) in self.__query:
-                self.__query.remove((parameter, value))
+        if self.query_string:
+            uri += '?' + quote(self.query_string, safe='&=;,')
 
-        if query_string and self.__query:
-            query_string += '&'
+        return uri
 
-        query_string += '&'.join('{0[0]}={0[1]}'.format(item) for item in
-                self.__query)
-
-        return query_string
-
-    def get_url(self):
+    def headers(self):
         """
         """
-        return urlunparse((self.scheme, self.netloc, self.path, '', self.query,
-            ''))
+        return dict(self.env['spore.headers'], ())
+
+    def data(self):
+        """
+        """
+        return self.env['spore.payload'] or {}
+
+
+    def __call__(self):
+        """
+        """
+        request = Request(
+                method=self.env['REQUEST_METHOD'],
+                url=self.uri,
+                data=self.data(),
+                headers=self.headers()
+        )
+        return request.prepare()

@@ -10,10 +10,12 @@ more informations about SPORE descriptions
 """
 
 
-from requests.compat import urlparse
+from requests import Session
 from requests.compat import is_py2
+from requests.compat import urlparse
 
 from . import errors
+from .request import RequestBuilder
 
 
 class Spore(object):
@@ -198,7 +200,6 @@ class SporeMethod(object):
         else:
             self.authentication = authentication
 
-        self.parsed_url = urlparse(self.base_url)
 
     def __repr__(self):
         return '<SporeMethod [{}]>'.format(self.name)
@@ -210,15 +211,15 @@ class SporeMethod(object):
         the WSGI environnment keys http://wsgi.readthedocs.org/en/latest/definitions.html
         """
 
+        parsed_base_url = urlparse(self.base_url)
 
         def script_name(path):
             return path.rstrip('/')
 
-
         def userinfo(parsed_url):
             if parsed_url.username is None:
                 return ''
-            return '{0.username}:{0.password}'.format(parsed_url)
+            return '{0.username}:{0:password}'.format(parsed_url)
 
 
         def server_port(parsed_url):
@@ -236,9 +237,9 @@ class SporeMethod(object):
  
         return {
             'REQUEST_METHOD': self.method,
-            'SERVER_NAME': self.parsed_url.hostname,
-            'SERVER_PORT': server_port(self.parsed_url), 
-            'SCRIPT_NAME': script_name(self.parsed_url.path),
+            'SERVER_NAME': parsed_base_url.hostname,
+            'SERVER_PORT': server_port(parsed_base_url), 
+            'SCRIPT_NAME': script_name(parsed_base_url.path),
             'PATH_INFO': path_info,
             'QUERY_STRING': query_string,
             'HTTP_USER_AGENT': 'britney',
@@ -247,9 +248,9 @@ class SporeMethod(object):
             'spore.params': '',
             'spore.payload': '',
             'spore.errors': '',
-            'spore.url_scheme': self.parsed_url.scheme,
-            'spore.userinfo': userinfo(self.parsed_url),
-            'spore.format': self.formats
+            'spore.format': self.formats,
+            'spore.userinfo': '',
+            'wsgi.url_scheme': parsed_base_url.scheme,
         }
 
     def check_status(self, response):
@@ -319,3 +320,10 @@ class SporeMethod(object):
             'spore.payload': build_payload(self, **kwargs),
             'spore.params': build_params(self, **kwargs)
         })
+
+        prepared_request = RequestBuilder(environ)()
+        response = Session(prepared_request, verify=True)
+
+        self.check_status(response)
+
+        return response

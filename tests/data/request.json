@@ -7,11 +7,11 @@
             "SCRIPT_NAME": "/redmine",
             "PATH_INFO": "/users.:format",
             "QUERY_STRING": "",
-            "spore.url_scheme": "http",
+            "wsgi.url_scheme": "http",
             "spore.userinfo": "",
-            "spore.params": [["format", "json"]]
+            "spore.params": [["format", "json"], ["test_query", "true"]]
         },
-        "url": "http://my_host.org/redmine/users.json"
+        "url": "http://my_host.org/redmine/users.json?test_query=true"
     },{
         "env": {
             "REQUEST_METHOD": "POST",
@@ -20,7 +20,7 @@
             "SCRIPT_NAME": "/redmine",
             "PATH_INFO": "/users/:id.:format",
             "QUERY_STRING": "",
-            "spore.url_scheme": "http",
+            "wsgi.url_scheme": "http",
             "spore.userinfo": "toto:123456789",
             "spore.params": [["id", "9"], ["format", "xml"]]
         },
@@ -33,7 +33,7 @@
             "SCRIPT_NAME": "",
             "QUERY_STRING": "",
             "PATH_INFO": "/users/:id.:format",
-            "spore.url_scheme": "https",
+            "wsgi.url_scheme": "https",
             "spore.userinfo": "toto:123456789",
             "spore.params": [["id", "9"], ["format", "xml"]]
         },
@@ -46,7 +46,7 @@
             "SCRIPT_NAME": "/redmine",
             "PATH_INFO": "/users/:id.:format",
             "QUERY_STRING": "",
-            "spore.url_scheme": "https",
+            "wsgi.url_scheme": "https",
             "spore.userinfo": "",
             "spore.params": [["id", "9"], ["format", "xml"]]
         },
@@ -60,7 +60,7 @@
             "SCRIPT_NAME": "",
             "PATH_INFO": "/users/:id.:format",
             "QUERY_STRING": "format=:format&fill=true",
-            "spore.url_scheme": "https",
+            "wsgi.url_scheme": "https",
             "spore.userinfo": "toto:123456789",
             "spore.params": [["id", "9"], ["format", "xml"]]
         },
