@@ -249,7 +249,7 @@ class SporeMethod(object):
             'spore.payload': '',
             'spore.errors': '',
             'spore.format': self.formats,
-            'spore.userinfo': '',
+            'spore.userinfo': userinfo(parsed_base_url),
             'wsgi.url_scheme': parsed_base_url.scheme,
         }
 
