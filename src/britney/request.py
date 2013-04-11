@@ -73,7 +73,7 @@ class RequestBuilder(object):
     def headers(self):
         """
         """
-        return dict(self.env['spore.headers'], ())
+        return dict(self.env.get('spore.headers', ()))
 
     def data(self):
         """
