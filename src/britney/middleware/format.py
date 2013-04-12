@@ -52,8 +52,8 @@ class Format(Middleware):
             headers.append(self.content_type)
         self.add_headers(environ, *headers)
 
-    def process_response(self, reponse):
-        reponse.content = self.load(reponse.content)
+    def process_response(self, response):
+        response.data = response.json()
 
 
 class Json(Format):
