@@ -49,7 +49,7 @@ class Basic(Auth):
         """
         """
         header = ('Authorization', _basic_auth(self.username, self.password))
-        self.update(environ, header)
+        self.add_headers(environ, header)
 
 
 class Proxy(Basic):
@@ -65,7 +65,7 @@ class Proxy(Basic):
         """
         header = ('Proxy-Authorization', _basic_auth(self.username,
             self.password))
-        self.update(environ, header)
+        self.add_headers(environ, header)
 
 
 class ApiKey(Auth):
@@ -83,4 +83,4 @@ class ApiKey(Auth):
         """
         """
         header = (self.key, self.value)
-        self.update(environ, header)
+        self.add_headers(environ, header)

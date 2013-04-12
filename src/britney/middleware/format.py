@@ -50,7 +50,7 @@ class Format(Middleware):
         if environ['spore.payload']:
             environ['spore.payload'] = self.dump(environ['spore.payload'])
             headers.append(self.content_type)
-        self.update(environ, *headers)
+        self.add_headers(environ, *headers)
 
     def process_response(self, reponse):
         reponse.content = self.load(reponse.content)
