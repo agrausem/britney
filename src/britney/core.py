@@ -182,7 +182,7 @@ class SporeMethod(object):
         self.method = method
         self.path = path
         self.description = description
-        self.required_payload = False
+        self.required_payload = method in self.PAYLOAD_HTTP_METHODS
 
         self.base_url = base_url if base_url else api_base_url
         self.formats = formats if formats else global_formats
@@ -257,15 +257,9 @@ class SporeMethod(object):
         """
         """
 
-        if data is None and self.required_payload:
+        if not data and self.required_payload:
             raise errors.SporeMethodCallError('Payload is required for '
                 'this function')
-
-        if data and self.method in self.PAYLOAD_HTTP_METHODS:
-            raise errors.SporeMethodCallError(
-                'Payload requires one of these HTTP Methods: {}'.format(
-                    ', '.join(self.PAYLOAD_HTTP_METHODS))
-            )
 
         return data
     
