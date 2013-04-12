@@ -10,7 +10,7 @@ more informations about SPORE descriptions
 """
 
 
-from requests import Session
+import requests
 from requests.compat import is_py2
 from requests.compat import urlparse
 
@@ -54,7 +54,7 @@ class Spore(object):
         for method_name, method_description in kwargs['methods'].items():
             try:
                 method = SporeMethod(
-                    method_name, 
+                    name=method_name, 
                     base_url=kwargs['base_url'],
                     middlewares=cls.middlewares,
                     global_authentication=kwargs.get('authentication', None),
@@ -174,22 +174,22 @@ class SporeMethod(object):
 
     def __init__(self, name='', api_base_url='', method='', path='', 
             required_params=None, optional_params=None, expected_status=None,
-            description='', authentication=None, formats=None, base_url='',
-            documentation='', middlewares=None, global_authentication=None,
-            global_formats=None):
+            required_payload=False, description='', authentication=None,
+            formats=None, base_url='', documentation='', middlewares=None,
+            global_authentication=None, global_formats=None):
 
         self.name = name
         self.method = method
         self.path = path
         self.description = description
-        self.required_payload = method in self.PAYLOAD_HTTP_METHODS
+        self.required_payload = required_payload
 
         self.base_url = base_url if base_url else api_base_url
         self.formats = formats if formats else global_formats
 
         self.required_params = required_params if required_params else []
         self.optional_params = optional_params if optional_params else []
-        self.middlewares = middlewares if middlewares else []
+        self.middlewares = middlewares
         self.expected_status = expected_status if expected_status else []
 
         self.headers = []
@@ -199,7 +199,6 @@ class SporeMethod(object):
                 if global_authentication is not None else False
         else:
             self.authentication = authentication
-
 
     def __repr__(self):
         return '<SporeMethod [{}]>'.format(self.name)
@@ -289,7 +288,7 @@ class SporeMethod(object):
         return list(is_py2 and kwargs.viewitems() or kwargs.items())
 
     def check_status(self, response):
-        """ Checks reponse status in fact of the *expected_status*
+        """ Checks response status in fact of the *expected_status*
         attribute
 
         :param response: the response from the REST service
@@ -307,6 +306,7 @@ class SporeMethod(object):
         """ Calls the method with required parameters
         """
 
+        hooks = []
         data = kwargs.pop('payload', None)
 
         environ = self.base_environ()
@@ -315,9 +315,21 @@ class SporeMethod(object):
             'spore.params': self.build_params(**kwargs)
         })
 
-        prepared_request = RequestBuilder(environ)
-        response = Session(prepared_request(), verify=True)
 
-        self.check_status(response)
+        for predicate, middleware in self.middlewares:
+            if predicate(environ):
+                callback = middleware(environ)
+                if callback is not None:
+                    if isinstance(callback, requests.Response):
+                        return callback
+                    hooks.append(callback)
+
+        prepared_request = RequestBuilder(environ)
+
+        with requests.session() as session:
+            response = session.send(prepared_request(), verify=True)
+
+        # self.check_status(response)
+        map(lambda hook: hook(response), hooks)
 
         return response
