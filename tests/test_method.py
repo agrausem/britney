@@ -102,7 +102,7 @@ class TestMethodRequiredParameters(unittest.TestCase):
         self.assertEqual(error.cause, 'Required parameters are missing')
         self.assertEqual(error.expected_values, set(['format']))
 
-    def too_much_args(self):
+    def test_too_much_args(self):
         method = self.method(required_params=['user_id', 'format'],
                 optional_params=['page'])
 
