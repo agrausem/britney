@@ -278,7 +278,7 @@ class SporeMethod(object):
         # some required parameters are missing
         if not req_params.issubset(passed_args):
             raise errors.SporeMethodCallError('Required parameters are missing', 
-                    expected=req_params - all_params)
+                    expected=req_params - passed_args)
         
         # too much arguments passed to func
         if (passed_args - all_params):
