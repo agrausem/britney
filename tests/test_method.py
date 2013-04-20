@@ -1,17 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import os
+from functools import partial
 import json
+import os
 import unittest
 from britney.core import SporeMethod
 from britney import errors
-from functools import partial
-
-
-class TestSuccessfullBuild(unittest.TestCase):
-    """
-    """
-    pass
 
 
 class TestMethodAuthentication(unittest.TestCase):
@@ -155,28 +149,72 @@ class TestMethodBaseUrl(unittest.TestCase):
 
         error = build_error.exception
         self.assertTrue(error.errors.has_key('base_url'))
-        
 
-class TestMethodBuilder(unittest.TestCase):
-    """
+
+class TestMethodBaseEnviron(unittest.TestCase):
+    """ Tests the build of the base environment of a request based on WSGI
+    specification in fact of the JSON description of a REST API.
     """
 
     def setUp(self):
-        path = os.path.join(os.path.dirname(__file__), 'data', 'method.json')
-        with open(path, 'r') as method_data:
-            self.data = json.loads(method_data.read())
-
-
-    def tearDown(self):
         pass
 
+    def test_userinfo(self):
+        method = SporeMethod(method='GET', name='test_method', path='/test',
+                base_url='http://toto:123456789@api.test.org/') 
+        base_environ = method.base_environ()
+        self.assertEqual(base_environ['spore.userinfo'], 'toto:123456789')
+        self.assertEqual(base_environ['SERVER_NAME'], 'api.test.org')
+        self.assertEqual(base_environ['SERVER_PORT'], 80)
+        self.assertEqual(base_environ['SCRIPT_NAME'], '')
+        self.assertEqual(base_environ['PATH_INFO'], '/test')
+        self.assertEqual(base_environ['QUERY_STRING'], '')
+        self.assertEqual(base_environ['wsgi.url_scheme'], 'http')
 
-    def test_environ_url(self):
-        """
-        """
-        for data in self.data:
-            environ = data.pop('environ')
-            method = SporeMethod(name='test', **data)
-            base_environ = method.base_environ()
-            for key in environ:
-                self.assertEqual(base_environ[key], environ[key])
+    def test_script_name(self):
+        method = SporeMethod(method='GET', name='test_method', path='/test',
+                base_url='http://api.test.org/v2/')
+        base_environ = method.base_environ()
+        self.assertEqual(base_environ['spore.userinfo'], '')
+        self.assertEqual(base_environ['SERVER_NAME'], 'api.test.org')
+        self.assertEqual(base_environ['SERVER_PORT'], 80)
+        self.assertEqual(base_environ['SCRIPT_NAME'], '/v2')
+        self.assertEqual(base_environ['PATH_INFO'], '/test')
+        self.assertEqual(base_environ['QUERY_STRING'], '')
+        self.assertEqual(base_environ['wsgi.url_scheme'], 'http')
+        
+    def test_path_and_query(self):
+        method = SporeMethod(method='GET', name='test_method',
+                path='/test?format=json', base_url='http://api.test.org/v2/')
+        base_environ = method.base_environ()
+        self.assertEqual(base_environ['spore.userinfo'], '')
+        self.assertEqual(base_environ['SERVER_NAME'], 'api.test.org')
+        self.assertEqual(base_environ['SERVER_PORT'], 80)
+        self.assertEqual(base_environ['SCRIPT_NAME'], '/v2')
+        self.assertEqual(base_environ['PATH_INFO'], '/test')
+        self.assertEqual(base_environ['QUERY_STRING'], 'format=json')
+        self.assertEqual(base_environ['wsgi.url_scheme'], 'http')
+
+    def test_https(self):
+        method = SporeMethod(method='GET', name='test_method', path='/test',
+                base_url='https://api.test.org/')
+        base_environ = method.base_environ()
+        self.assertEqual(base_environ['spore.userinfo'], '')
+        self.assertEqual(base_environ['SERVER_NAME'], 'api.test.org')
+        self.assertEqual(base_environ['SERVER_PORT'], 443)
+        self.assertEqual(base_environ['SCRIPT_NAME'], '')
+        self.assertEqual(base_environ['PATH_INFO'], '/test')
+        self.assertEqual(base_environ['QUERY_STRING'], '')
+        self.assertEqual(base_environ['wsgi.url_scheme'], 'https')
+
+    def test_server_port(self):
+        method = SporeMethod(method='GET', name='test_method', path='/test',
+                base_url='https://api.test.org:8081/')
+        base_environ = method.base_environ()
+        self.assertEqual(base_environ['spore.userinfo'], '')
+        self.assertEqual(base_environ['SERVER_NAME'], 'api.test.org')
+        self.assertEqual(base_environ['SERVER_PORT'], 8081)
+        self.assertEqual(base_environ['SCRIPT_NAME'], '')
+        self.assertEqual(base_environ['PATH_INFO'], '/test')
+        self.assertEqual(base_environ['QUERY_STRING'], '')
+        self.assertEqual(base_environ['wsgi.url_scheme'], 'https')
