@@ -218,7 +218,7 @@ class SporeMethod(object):
         def userinfo(parsed_url):
             if parsed_url.username is None:
                 return ''
-            return '{0.username}:{0:password}'.format(parsed_url)
+            return '{0.username}:{0.password}'.format(parsed_url)
 
 
         def server_port(parsed_url):
