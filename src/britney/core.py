@@ -222,10 +222,11 @@ class SporeMethod(object):
 
 
         def server_port(parsed_url):
-            if parsed_url.scheme == 'http':
-                return '80'
-            elif parsed_url.scheme == 'https':
-                return '443'
+            if not parsed_url.port:
+                if parsed_url.scheme == 'http':
+                    return 80
+                elif parsed_url.scheme == 'https':
+                    return 443
             return parsed_url.port
 
         path = self.path.split('?')
