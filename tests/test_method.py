@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from functools import partial
-import json
-import os
 import unittest
 from britney.core import SporeMethod
 from britney import errors
@@ -218,3 +216,45 @@ class TestMethodBaseEnviron(unittest.TestCase):
         self.assertEqual(base_environ['PATH_INFO'], '/test')
         self.assertEqual(base_environ['QUERY_STRING'], '')
         self.assertEqual(base_environ['wsgi.url_scheme'], 'https')
+
+
+class TestMethodBuilder(unittest.TestCase):
+    """ Test method generation, errors catched in REST description and
+    representation
+    """
+
+    def test_missing_required_in_desc(self):
+        with self.assertRaises(errors.SporeMethodBuildError) as build_error:
+            SporeMethod(base_url='http://api.test.org')
+
+        error = build_error.exception
+        self.assertTrue(error.errors.has_key('name'))
+        self.assertTrue(error.errors.has_key('path'))
+        self.assertTrue(error.errors.has_key('method'))
+
+    def test_representation(self):
+        method = SporeMethod(method='GET', path='/tests', name='test_method',
+                base_url='http://api.test.org')
+        self.assertEqual(repr(method), '<SporeMethod [test_method]>')
+
+
+class TestMethodPayload(unittest.TestCase):
+    """ Test payload generation and check for POST, PATCH and POST requests
+    """
+
+    def setUp(self):
+        self.method = partial(SporeMethod, method='GET', name='test_method',
+                path='/test', api_base_url='http://my_test.org') 
+
+    def test_payload_error(self):
+        method = self.method(required_payload=True)
+        with self.assertRaises(errors.SporeMethodCallError) as call_error:
+            method.build_payload(data=[])
+
+        error = call_error.exception
+        self.assertEqual(error.cause, 'Payload is required for this function')
+
+    def test_payload(self):
+        method = self.method(required_payload=True)
+        payload = method.build_payload(data={'test': 'data'})
+        self.assertEqual(payload, {'test': 'data'})
