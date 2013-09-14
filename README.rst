@@ -1,3 +1,6 @@
+.. image:: https://secure.travis-ci.org/agrausem/britney.png?branch=master
+        :target: https://travis-ci.org/agrausem/britney
+
 =======
 Britney
 =======
