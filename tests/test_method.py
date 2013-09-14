@@ -116,7 +116,9 @@ class TestMethodRequiredParameters(unittest.TestCase):
         self.assertListEqual(sorted(keys), ['format', 'page', 'user_id'])
 
         values = [param[1] for param in params]
-        self.assertListEqual(sorted(values), [2, 3, 'json'])
+        self.assertTrue(2 in values)
+        self.assertTrue(3 in values)
+        self.assertTrue('json' in values)
 
 
 class TestMethodBaseUrl(unittest.TestCase):
@@ -146,7 +148,7 @@ class TestMethodBaseUrl(unittest.TestCase):
             self.method()
 
         error = build_error.exception
-        self.assertTrue(error.errors.has_key('base_url'))
+        self.assertTrue('base_url ' in error.errors)
 
 
 class TestMethodBaseEnviron(unittest.TestCase):
@@ -228,9 +230,9 @@ class TestMethodBuilder(unittest.TestCase):
             SporeMethod(base_url='http://api.test.org')
 
         error = build_error.exception
-        self.assertTrue(error.errors.has_key('name'))
-        self.assertTrue(error.errors.has_key('path'))
-        self.assertTrue(error.errors.has_key('method'))
+        self.assertTrue('name' in error.errors)
+        self.assertTrue('path' in  error.errors)
+        self.assertTrue('method' in error.errors)
 
     def test_representation(self):
         method = SporeMethod(method='GET', path='/tests', name='test_method',
