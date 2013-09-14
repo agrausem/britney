@@ -1,5 +1,8 @@
 .. image:: https://secure.travis-ci.org/agrausem/britney.png?branch=master
-        :target: https://travis-ci.org/agrausem/britney
+    :target: https://travis-ci.org/agrausem/britney
+
+.. image:: https://coveralls.io/repos/agrausem/britney/badge.png
+    :target: https://coveralls.io/r/agrausem/britney
 
 =======
 Britney

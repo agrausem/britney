@@ -1,0 +1,7 @@
+[run]
+source = 
+    src/britney
+    src/britney/middleware
+
+[report]
+omit = */tests/*
