@@ -1,19 +1,21 @@
-.. image:: https://secure.travis-ci.org/agrausem/britney.png?branch=master
-    :target: https://travis-ci.org/agrausem/britney
-
-.. image:: https://coveralls.io/repos/agrausem/britney/badge.png?branch=master
-    :target: https://coveralls.io/r/agrausem/britney?branch=master
 
 =======
 Britney
 =======
 
-Britney is a module that implements the `SPORE specification`_. It is based on Spyre.
+Britney is a module that implements the `SPORE specification`_. It is based on `Spyre`_.
 This module requires a SPORE description of an API. Some descriptions for known services are available `here`_. You can write your own with `this guide`_.
 
 .. _SPORE specification: https://github.com/SPORE/specifications/blob/master/spore_implementation.pod
+.. _Spyre: https://github.com/bl0b/spyre
 .. _here: https://github.com/spore/api-description
 .. _this guide: https://github.com/SPORE/specifications/blob/master/spore_description.pod
+
+.. image:: https://secure.travis-ci.org/agrausem/britney.png?branch=master
+    :target: https://travis-ci.org/agrausem/britney
+
+.. image:: https://coveralls.io/repos/agrausem/britney/badge.png?branch=master
+    :target: https://coveralls.io/r/agrausem/britney?branch=master
 
 Create your client
 ==================
