@@ -148,7 +148,7 @@ class TestMethodBaseUrl(unittest.TestCase):
             self.method()
 
         error = build_error.exception
-        self.assertTrue('base_url ' in error.errors)
+        self.assertTrue('base_url' in error.errors)
 
 
 class TestMethodBaseEnviron(unittest.TestCase):
