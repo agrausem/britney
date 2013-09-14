@@ -22,7 +22,7 @@ setup(
     maintainer_email='arnaud.grausem@gmail.com',
     url='https://github.com/agrausem/britney',
     license='PSF',
-    description=u'Python implementation of SPORE',
+    description='Python implementation of SPORE',
     long_description=long_description,
     packages=find_packages('src'),
     package_dir={'': 'src'},
