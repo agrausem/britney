@@ -70,7 +70,7 @@ class Spore(object):
             raise errors.SporeClientBuildError(spec_errors,
                     method_errors)
 
-        return super(Spore, cls).__new__(cls, *args, **kwargs)
+        return super(Spore, cls).__new__(cls)
 
     def __init__(self, name='', base_url='', authority='', formats=None, 
             version='', authentication=None, methods=None, meta=None): 
@@ -170,7 +170,7 @@ class SporeMethod(object):
 
         setattr(cls, __doc__, documentation if documentation else description)
 
-        return super(SporeMethod, cls).__new__(cls, *args, **kwargs)
+        return super(SporeMethod, cls).__new__(cls)
 
     def __init__(self, name='', api_base_url='', method='', path='', 
             required_params=None, optional_params=None, expected_status=None,
