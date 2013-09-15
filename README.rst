@@ -82,7 +82,7 @@ Basics
 
 Creating and enabling middlewares let you control how request are send or response are received by adding authentification or formatting data. To create your middleware, you should :
 
-  * inherit from :py:class:`britney.middleware.Middleware`
+  * inherit from ``britney.middleware.Middleware``
   * define how to instantiate your middleware
   * implement the process_request method to process the request
   * implement the process_response method to process the response
@@ -115,7 +115,7 @@ With this method, you can access all of the keys and values of the request's bas
 
     def process_request(self, environ):
         self.start_time = datetime.datetime.now()
-        self.add_headers(environ, (self.runtime_header, 0))
+        environ[self.runtime_key] = 0
 
 Processing response
 -------------------
@@ -131,7 +131,7 @@ With this method, you can access data from the response, change or format conten
 Use it
 ------
 
-When you create your client, you only should enable your middleware and pass appopriate **named arguments** to the :py:meth:`~britney.core.Spore.enable` method : ::
+When you create your client, you only should enable your middleware and pass appopriate **named arguments** to the ``enable`` method : ::
 
     import britney
     from your_module.middleware import Runtime
@@ -145,7 +145,7 @@ That's all !
 
 Test it
 -------
-A mock middleware and a function to fake Requests response are available to test the middlewares you created by faking a server. To test the Runtime middleware, you can do as follow : ::
+A mock middleware and a function to fake ``Requests`` response are available to test the middlewares you created by faking a server. To test the Runtime middleware, you can do as follow : ::
 
     import datetime
     import unittest
