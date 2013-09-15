@@ -26,7 +26,9 @@ class Middleware(object):
         """
         if hasattr(self, 'process_request'):
             environ.setdefault('spore.headers', [])
-            self.process_request(environ)
+            response = self.process_request(environ)
+            if response is not None:
+                return response
         if hasattr(self, 'process_response'):
             callback = partial(self.process_response)
             return callback

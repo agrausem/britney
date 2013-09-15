@@ -323,7 +323,7 @@ class SporeMethod(object):
             if predicate(environ):
                 callback = middleware(environ)
                 if callback is not None:
-                    if isinstance(callback, requests.Response):
+                    if isinstance(callback, requests.models.Response):
                         return callback
                     hooks.append(callback)
 

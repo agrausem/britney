@@ -1,0 +1,10 @@
+{
+    "name": "Test API",
+    "base_url": "http://test.api.org/",
+    "methods": {
+        "test": {
+            "method": "GET",
+            "path": "/test"
+        }
+    }
+}

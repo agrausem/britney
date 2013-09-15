@@ -1,0 +1,77 @@
+# -*- coding: utf-8 -*-
+
+"""
+britney.middleware.utils
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+:copyright: (c) 2013 by Arnaud Grausem
+:license: BSD see LICENSE for details
+"""
+
+import requests
+from requests_testadapter import TestAdapter
+from six import b
+from . import Middleware
+from ..request import RequestBuilder
+
+
+def fake_response(request, content, status_code=200, headers=None):
+    """ For test purposes, this function can build fake response with customize
+    attribute values
+    :param request:  the prepared request to send
+    :type request:  ~requests.PreparedRequest
+    :param content: the content of the response
+    :type content: string
+    :param status: the status of the response. Defaults to 200
+    :type status: integer
+    :param headers: the headers to set
+    :type headers: a dictionnary
+    :return: a fake response
+    :rtype: ~requests.Response
+    """
+    session = requests.session()
+    session.mount('http://', TestAdapter(b(content), status=status_code,
+        headers=headers))
+    method = getattr(session, request.method.lower())
+    return method(request.url)
+    
+
+class Mock(Middleware):
+    """ This middleware can add the ability to fake a server that exposes an
+    API.
+
+    .. py:attribute:: fakes
+
+        fakes should be a dict. Keys are pathes and values associated are
+        callables that takes a request as argument and returns a response
+        object
+
+    Here is an example to use it : ::
+
+        from requests import Response
+        import britney
+        from britney.middleware import utils
+
+        def expected_response(request):
+            return utils.fake_reponse(request, 'OK', status_code=200,
+            headers={'Content-Type': 'text-plain'})
+
+        client = britney.spyre('/path/to/spec.json')
+        client.enable(utils.Mock, fakes={'/test': expected_response})
+
+        result = client.test()
+
+        assert(result.text == 'OK')
+        assert(result.status_code == 200)
+        assert('Content-Type' in result.headers)
+    """
+
+    def __init__(self, fakes):
+        self.fakes = fakes
+
+    def process_request(self, environ):
+        finalized_request = RequestBuilder(environ)
+        for path, func in self.fakes.items():
+            if path == finalized_request.path_info:
+                response = func(finalized_request())
+                return response or None
