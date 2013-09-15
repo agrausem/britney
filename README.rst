@@ -1,4 +1,3 @@
-
 =======
 Britney
 =======
@@ -60,6 +59,13 @@ Sometimes, you want to enable middlewares on certain conditions. Another method 
     from britney.middleware import auth 
     
     client = britney.spyre('http://my-server/ws/api_desc.json')
-    client.enable_if(lambda environ: environ['payload'] != '', auth.Basic, 'login', 'xxxxxx')
+    client.enable_if(lambda request: request['payload'] != '', auth.Basic, username='login', password='xxxxxx')
+
+
+Use your client
+===============
+
+Add your own middleware
+=======================
 
 
