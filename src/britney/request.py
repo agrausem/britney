@@ -45,11 +45,11 @@ class RequestBuilder(object):
             uri += self.env['SERVER_NAME']
 
             if self.env['wsgi.url_scheme'] == 'https':
-                if self.env['SERVER_PORT'] != '443':
-                    uri += ':' + self.env['SERVER_PORT']
+                if self.env['SERVER_PORT'] != 443:
+                    uri += ':%d' % self.env['SERVER_PORT']
             else:
-                if self.env['SERVER_PORT'] != '80':
-                    uri += ':' + self.env['SERVER_PORT']
+                if self.env['SERVER_PORT'] != 80:
+                    uri += ':%d' % self.env['SERVER_PORT']
 
         return uri + quote(self.env['SCRIPT_NAME'] or '/')
     
