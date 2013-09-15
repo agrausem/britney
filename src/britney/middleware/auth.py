@@ -49,22 +49,6 @@ class Basic(Auth):
         self.add_headers(environ, header)
 
 
-class Proxy(Basic):
-    """
-    """
-    
-    def __init__(self, username, password):
-        super(Proxy, self).__init__(username, password)
-
-
-    def process_request(self, environ):
-        """
-        """
-        header = ('Proxy-Authorization', _basic_auth(self.username,
-            self.password))
-        self.add_headers(environ, header)
-
-
 class ApiKey(Auth):
     """
     """
