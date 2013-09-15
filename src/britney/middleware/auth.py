@@ -69,10 +69,10 @@ class ApiKey(Auth):
     """
     """
 
-    def __init__(self, key_name, key_value, *args):
+    def __init__(self, key_name, key_value, **kwargs):
         self.key = key_name
         if callable(key_value):
-            self.value = key_value(*args)
+            self.value = key_value(**kwargs)
         else:
             self.value = key_value
 
