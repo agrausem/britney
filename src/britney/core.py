@@ -36,35 +36,36 @@ class Spore(object):
     """
 
     def __new__(cls, *args, **kwargs):
-        spec_errors = {}
+        spec_errors, method_errors = {}, {}
+        setattr(cls, 'middlewares', [])
 
         if not kwargs.get('name', ''):
             spec_errors['name'] = 'A name for this client is required'
-
-        if not kwargs.get('methods', {}):
-            spec_errors['methods'] = 'One method is required to create the client'
 
         if not kwargs.get('base_url', ''):
             spec_errors['base_url'] = 'A base URL to the REST Web Service is '
             'required'
 
-        setattr(cls, 'middlewares', [])
-
-        method_errors = {}
-        for method_name, method_description in kwargs['methods'].items():
-            try:
-                method = SporeMethod(
-                    name=method_name, 
-                    base_url=kwargs['base_url'],
-                    middlewares=cls.middlewares,
-                    global_authentication=kwargs.get('authentication', None),
-                    global_formats=kwargs.get('formats', None),
-                    **method_description
-                )
-            except errors.SporeMethodBuildError as method_error:
-                method_errors[method_name] = method_error
-            else:
-                setattr(cls, method_name, method)
+        if not 'methods' in kwargs:
+            spec_errors['methods'] = 'One method is required to create the '
+            'client'
+        else:
+            authentication = kwargs.get('authentication', None)
+            formats = kwargs.get('formats', None)
+            for method_name, method_description in kwargs['methods'].items():
+                try:
+                    method = SporeMethod(
+                        name=method_name, 
+                        base_url=kwargs['base_url'],
+                        middlewares=cls.middlewares,
+                        global_authentication=authentication,
+                        global_formats=formats,
+                        **method_description
+                    )
+                except errors.SporeMethodBuildError as method_error:
+                    method_errors[method_name] = method_error
+                else:
+                    setattr(cls, method_name, method)
             
         if spec_errors or method_errors:
             raise errors.SporeClientBuildError(spec_errors,
@@ -102,6 +103,7 @@ class Spore(object):
         returns a boolean
         :param middleware: a middleware class
         :param kwargs: parameters to instantiate the middleware
+        :raises: ValueError when the middleware is not a callable
         """
         if not callable(middleware):
             raise ValueError(middleware)
