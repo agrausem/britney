@@ -298,15 +298,17 @@ class SporeMethod(object):
         :type response: requests.Response
         :raises: ~britney.errors.SporeMethodStatusError
         """
-        status = int(response.status)
-        checklist = [status == expected_status for expected_status
-                in self.expected_status]
-        if checklist and not any(checklist):
+        status = response.status
+        if 200 <= status <= 299:
+            return
+        if status not in self.expected_status:
             raise errors.SporeMethodStatusError()
 
 
     def __call__(self, **kwargs):
         """ Calls the method with required parameters
+        :raises: ~britney.errors.SporeMethodStatusError
+        :raises: ~britney.errors.SporeMethodCallError
         """
 
         hooks = []
@@ -333,7 +335,7 @@ class SporeMethod(object):
             response = session.send(prepared_request(), verify=True)
             response.environ = environ
 
-        # self.check_status(response)
+        self.check_status(response)
         map(lambda hook: hook(response), hooks)
 
         return response
