@@ -66,12 +66,23 @@ class Mock(Middleware):
         assert('Content-Type' in result.headers)
     """
 
-    def __init__(self, fakes):
+    def __init__(self, fakes, middlewares=None):
         self.fakes = fakes
+        self.middlewares = middlewares or []
 
     def process_request(self, environ):
         finalized_request = RequestBuilder(environ)
         for path, func in self.fakes.items():
             if path == finalized_request.path_info:
                 response = func(finalized_request())
-                return response or None
+                response.environ = environ
+                return self.mock_process_response(response) or None
+
+    def mock_process_response(self, response):
+        if self.middlewares:
+            for predicate, middleware in self.middlewares:
+                if hasattr(middleware, 'process_response') and \
+                        predicate(response.environ):
+                    middleware.process_response(response)
+        return response
+        
