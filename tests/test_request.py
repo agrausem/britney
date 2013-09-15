@@ -3,6 +3,7 @@
 
 import os
 import json
+import requests
 import unittest
 from britney.request import RequestBuilder
 
@@ -36,3 +37,11 @@ class TestRequestBuilderUrl(unittest.TestCase):
         built_request = RequestBuilder(environ)
         payload = built_request.data()
         self.assertEqual(payload, {'param': 'test'})
+
+    def test_call(self):
+        environ = {'spore.headers': [('Authorization', 'cdbcdvvvfvf=='),
+            ('Content-Type', 'text/plain')], 'spore.payload': {'test': 'test'}}
+        environ.update(self.data[0]['env'])
+        built_request = RequestBuilder(environ)
+        prepared_request = built_request()
+        self.assertIsInstance(prepared_request, requests.PreparedRequest)
