@@ -23,7 +23,8 @@ def spyre(spec_uri, base_url=None):
         func = _new_from_file
 
     api_description = func(spec_uri)
-    api_description.update({'base_url': base_url})
+    if base_url is not None:
+        api_description.update({'base_url': base_url})
 
     return Spore(**api_description)
 
