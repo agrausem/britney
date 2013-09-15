@@ -331,6 +331,7 @@ class SporeMethod(object):
 
         with requests.session() as session:
             response = session.send(prepared_request(), verify=True)
+            response.environ = environ
 
         # self.check_status(response)
         map(lambda hook: hook(response), hooks)
