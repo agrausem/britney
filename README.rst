@@ -16,6 +16,21 @@ This module requires a SPORE description of an API. Some descriptions for known 
 .. image:: https://coveralls.io/repos/agrausem/britney/badge.png?branch=master
     :target: https://coveralls.io/r/agrausem/britney?branch=master
 
+
+
+
+Install
+=======
+
+Britney is working under Python 2.7 and Python >= 3.2. To install the module, you should use pip or easy_install : ::
+
+    $> pip install britney
+
+or ::
+
+    $> easy_install britney
+
+
 Create your client
 ==================
 
