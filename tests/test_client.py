@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import json
+import os
+import requests
+from six import StringIO
 import unittest
 from britney import errors
+from britney import spyre
 from britney.core import Spore
 from britney.core import SporeMethod
 from britney.middleware import auth
@@ -78,3 +83,45 @@ class TestClientMiddleware(unittest.TestCase):
         with self.assertRaises(ValueError) as callable_error:
             self.client.enable('func', username='my_login',
                     password='my_password')
+
+
+class TestClientGenerator(unittest.TestCase):
+
+    def setUp(self):
+        self.data_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                'descriptions')
+
+    def test_no_description_file(self):
+        with self.assertRaises(IOError) as io_error:
+            spyre('/path/dont/exist/api.json')
+        
+    def test_no_description_url(self):
+        with self.assertRaises(requests.ConnectionError) as http_error:
+            spyre('http://description.not.fou.nd/api.json')
+
+    def test_no_valid_json_document(self):
+        with self.assertRaises(ValueError) as json_error:
+            json_file = os.path.join(self.data_path, 'no_api.json')
+            spyre(json_file)
+
+    def test_without_base_url(self):
+        json_file = os.path.join(self.data_path, 'api.json')
+        client = spyre(json_file)
+        with open(json_file, 'r') as api_description:
+            content = json.loads(api_description.read())
+            self.assertEqual(client.base_url, content['base_url'])
+
+    def test_with_base_url(self):
+        json_file = os.path.join(self.data_path, 'api.json')
+        client = spyre(json_file, base_url='http://my_base.url/')
+        self.assertEqual(client.base_url, 'http://my_base.url/')
+
+    def test_has_methods(self):
+        json_file = os.path.join(self.data_path, 'api.json')
+        client = spyre(json_file, base_url='http://my_base.url/')
+        with open(json_file, 'r') as api_description:
+            content = json.loads(api_description.read())
+            for method in content['methods']:
+                self.assertEqual(getattr(client, method).name, method) 
+
