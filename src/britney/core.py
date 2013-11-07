@@ -298,7 +298,7 @@ class SporeMethod(object):
         :type response: requests.Response
         :raises: ~britney.errors.SporeMethodStatusError
         """
-        status = response.status
+        status = response.status_code
         if 200 <= status <= 299:
             return
         if status not in self.expected_status:
