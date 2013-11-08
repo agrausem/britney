@@ -302,7 +302,7 @@ class SporeMethod(object):
         if 200 <= status <= 299:
             return
         if status not in self.expected_status:
-            raise errors.SporeMethodStatusError()
+            raise errors.SporeMethodStatusError(response)
 
 
     def __call__(self, **kwargs):

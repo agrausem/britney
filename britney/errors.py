@@ -31,7 +31,17 @@ class SporeMethodCallError(Exception):
         super(SporeMethodCallError, self).__init__(*args, **kwargs)
         self.cause  = cause
 
+
 class SporeMethodStatusError(Exception):
     """
     """
-    pass
+
+    def __init__(self, response, *args, **kwargs):
+        self.response = response
+        super(SporeMethodStatusError, self).__init__(*args, **kwargs)
+
+    def __str__(self):
+        return "Error %s" % self.response.status_code
+
+    def __repr__(self):
+        return self.response.status_code

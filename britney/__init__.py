@@ -12,6 +12,7 @@ This project is based on spyre
 
 import requests
 from .core import Spore
+from .errors import SporeMethodStatusError as HTTPError
 
 
 def spyre(spec_uri, base_url=None):
