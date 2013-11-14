@@ -65,3 +65,22 @@ class ApiKey(Auth):
         """
         header = (self.key, self.value)
         self.add_headers(environ, header)
+
+
+
+
+class Oauth2(Auth):
+    """
+    Oauth2 authentication
+    """
+
+    def __init__(self, access_token):
+        self.access_token = access_token
+
+    def process_request(self, environ):
+        """
+        Process request method
+        """
+        header = ("Authorization", "Bearer " + self.access_token)
+        self.add_headers(environ, header)
+
