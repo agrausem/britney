@@ -7,7 +7,6 @@ britney.middleware.auth
 """
 
 from base64 import b64encode
-from functools import partial
 
 from . import Middleware
 
@@ -69,7 +68,7 @@ class ApiKey(Auth):
 
 
 
-class Oauth2(Auth):
+class OAuth2(Auth):
     """
     Oauth2 authentication
     """
