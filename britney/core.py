@@ -272,7 +272,7 @@ class SporeMethod(object):
 
         req_params = frozenset(self.required_params)
         all_params = req_params | frozenset(self.optional_params)
-        passed_args = is_py2 and kwargs.viewkeys() or kwargs.keys()
+        passed_args = kwargs.viewkeys() if is_py2 else kwargs.keys()
 
         # nothing to do here
         if not all_params and not passed_args:
@@ -288,7 +288,7 @@ class SporeMethod(object):
             raise errors.SporeMethodCallError('Too much parameter',
                     expected=passed_args - all_params)
         
-        return list(is_py2 and kwargs.viewitems() or kwargs.items())
+        return list(kwargs.viewitems() if is_py2 else kwargs.items())
 
     def check_status(self, response):
         """ Checks response status in fact of the *expected_status*
