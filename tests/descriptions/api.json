@@ -5,6 +5,18 @@
         "test": {
             "method": "GET",
             "path": "/test"
+        },
+        "test_requires": {
+            "method": "GET",
+            "path": "/test-requires"
+        },
+        "test_optionals": {
+            "method": "GET",
+            "path": "/test-optionals"
+        },
+        "test_both": {
+            "method": "GET",
+            "path": "/test-both"
         }
     }
 }

@@ -9,7 +9,6 @@ in a SPORE description. See https://github.com/SPORE/specifications/blob/master/
 more informations about SPORE descriptions
 """
 
-
 import requests
 from requests.compat import is_py2
 from requests.compat import urlparse
@@ -38,6 +37,7 @@ class Spore(object):
     def __new__(cls, *args, **kwargs):
         spec_errors, method_errors = {}, {}
         setattr(cls, 'middlewares', [])
+        setattr(cls, 'defaults', {})
 
         if not kwargs.get('name', ''):
             spec_errors['name'] = 'A name for this client is required'
@@ -60,6 +60,7 @@ class Spore(object):
                         middlewares=cls.middlewares,
                         global_authentication=authentication,
                         global_formats=formats,
+                        defaults=cls.defaults,
                         **method_description
                     )
                 except errors.SporeMethodBuildError as method_error:
@@ -109,6 +110,20 @@ class Spore(object):
             raise ValueError(middleware)
 
         self.middlewares.append((predicate, middleware(**kwargs)))
+
+
+    def add_default(self, param, value):
+        """
+        """
+        self.defaults[param] = value
+
+    def remove_default(self, param):
+        """
+        """
+        try:
+            del self.defaults['param']
+        except KeyError:
+            pass
 
 
 class SporeMethod(object):
@@ -170,15 +185,16 @@ class SporeMethod(object):
         documentation = kwargs.get('documentation', '')
         description = kwargs.get('description', '')
 
-        setattr(cls, __doc__, documentation if documentation else description)
+        instance = super(SporeMethod, cls).__new__(cls)
+        instance.__doc__ = documentation or description
 
-        return super(SporeMethod, cls).__new__(cls)
+        return instance
 
     def __init__(self, name='', api_base_url='', method='', path='', 
             required_params=None, optional_params=None, expected_status=None,
             required_payload=False, description='', authentication=None,
             formats=None, base_url='', documentation='', middlewares=None,
-            global_authentication=None, global_formats=None):
+            global_authentication=None, global_formats=None, defaults=None):
 
         self.name = name
         self.method = method
@@ -192,6 +208,7 @@ class SporeMethod(object):
         self.required_params = required_params if required_params else []
         self.optional_params = optional_params if optional_params else []
         self.middlewares = middlewares
+        self.defaults = defaults
         self.expected_status = expected_status if expected_status else []
 
         self.headers = []
@@ -255,6 +272,16 @@ class SporeMethod(object):
             'wsgi.url_scheme': parsed_base_url.scheme,
         }
 
+    def is_a_param(self, param):
+        return param in self.required_params or param in self.optional_params
+
+    def get_defaults(self):
+        return {
+            param: value for param, value in 
+            (self.defaults.viewitems() if is_py2 else self.defaults.items()) 
+            if self.is_a_param(param)
+        } if self.defaults else {}
+        
     def build_payload(self, data):
         """
         """
@@ -273,21 +300,28 @@ class SporeMethod(object):
         req_params = frozenset(self.required_params)
         all_params = req_params | frozenset(self.optional_params)
         passed_args = kwargs.viewkeys() if is_py2 else kwargs.keys()
-
+        if self.defaults:
+            default_args = self.get_defaults().viewkeys() if is_py2 \
+                    else self.get_defaults().keys() 
+            all_args = set(passed_args).union(default_args)
+        else:
+            all_args = set(passed_args)
+ 
         # nothing to do here
-        if not all_params and not passed_args:
+        if not all_params and not all_args:
             return []
 
         # some required parameters are missing
-        if not req_params.issubset(passed_args):
+        if not req_params.issubset(all_args):
             raise errors.SporeMethodCallError('Required parameters are missing', 
                     expected=req_params - passed_args)
         
         # too much arguments passed to func
-        if (passed_args - all_params):
+        if (all_args - all_params):
             raise errors.SporeMethodCallError('Too much parameter',
                     expected=passed_args - all_params)
-        
+ 
+        kwargs.update(**self.get_defaults())
         return list(kwargs.viewitems() if is_py2 else kwargs.items())
 
     def check_status(self, response):

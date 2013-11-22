@@ -3,7 +3,6 @@
 import json
 import os
 import requests
-from six import StringIO
 import unittest
 from britney import errors
 from britney import spyre
@@ -83,6 +82,64 @@ class TestClientMiddleware(unittest.TestCase):
         with self.assertRaises(ValueError) as callable_error:
             self.client.enable('func', username='my_login',
                     password='my_password')
+
+
+class TestDefaultParametersValue(unittest.TestCase):
+    """
+    """
+
+    def setUp(self):
+        self.client = Spore(name='my_client', base_url='http://my_url.org',
+                methods={
+                    'my_method': {'method': 'GET', 'path': '/api'},
+                    'my_req_method': {'method': 'GET', 'path': '/api',
+                        'required_params': ['format']},
+                    'my_opt_method': {'method': 'GET', 'path': '/api',
+                        'optional_params': ['format']},
+                    'my_both_method': {'method': 'GET', 'path': '/api',
+                        'required_params': ['format'], 'optional_params':
+                        ['username']},
+                    'my_super_method': {'method': 'GET', 'path': '/api', 
+                        'required_params': ['format', 'last_name'],
+                        'optional_params': ['first_name']}
+                })
+        self.client.add_default('format', 'json')
+        self.client.add_default('username', 'toto')
+
+    def test_default(self):
+        self.assertDictContainsSubset(self.client.defaults,
+                                      {'format': 'json', 'username': 'toto'})
+
+    def test_method_default(self):
+        self.assertDictContainsSubset(self.client.my_method.defaults,
+                                      {'format': 'json', 'username': 'toto'})
+
+
+    def test_not_impacted(self):
+        params = self.client.my_method.build_params()
+        self.assertListEqual(params, [])
+
+    def test_required(self):
+        params = self.client.my_req_method.build_params()
+        self.assertListEqual(params, [('format', 'json')])
+
+    def test_optional(self):
+        params = self.client.my_opt_method.build_params()
+        self.assertListEqual(params, [('format', 'json')])
+
+    def test_both(self):
+        params = self.client.my_both_method.build_params()
+        self.assertItemsEqual(params, 
+                             [('format', 'json'), ('username', 'toto')])
+
+    def test_with_params(self):
+        params = self.client.my_super_method.build_params(last_name='toto')
+        self.assertItemsEqual(params,
+                             [('format', 'json'), ('last_name', 'toto')])
+
+    def test_missing(self):
+        with self.assertRaises(errors.SporeMethodCallError):
+            self.client.my_super_method.build_params()
 
 
 class TestClientGenerator(unittest.TestCase):
