@@ -3,6 +3,7 @@
 import json
 import os
 import requests
+from requests.compat import is_py2
 import unittest
 from britney import errors
 from britney import spyre
@@ -129,13 +130,13 @@ class TestDefaultParametersValue(unittest.TestCase):
 
     def test_both(self):
         params = self.client.my_both_method.build_params()
-        self.assertItemsEqual(params, 
-                             [('format', 'json'), ('username', 'toto')])
+        func = self.assertItemsEqual if is_py2 else self.assertSameElements
+        func(params, [('format', 'json'), ('username', 'toto')])
 
     def test_with_params(self):
         params = self.client.my_super_method.build_params(last_name='toto')
-        self.assertItemsEqual(params,
-                             [('format', 'json'), ('last_name', 'toto')])
+        func = self.assertItemsEqual if is_py2 else self.assertSameElements
+        func(params, [('format', 'json'), ('last_name', 'toto')])
 
     def test_missing(self):
         with self.assertRaises(errors.SporeMethodCallError):
