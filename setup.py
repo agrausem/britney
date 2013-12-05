@@ -15,7 +15,7 @@ with open('requirements.txt') as requirements:
 
 setup(
     name='britney',
-    version='0.2.1',
+    version='0.3.0',
     author='Arnaud Grausem',
     author_email='arnaud.grausem@gmail.com',
     maintainer='Arnaud Grausem',
@@ -31,12 +31,13 @@ setup(
     keywords=['SPORE', 'REST Api', 'client'],
     entry_points={},
     classifiers = (
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
     )
 )
