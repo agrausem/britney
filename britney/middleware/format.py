@@ -53,7 +53,7 @@ class Format(Middleware):
         self.add_headers(environ, *headers)
 
     def process_response(self, response):
-        response.data = response.json()
+        response.data = self.load(response.text)
 
 
 class Json(Format):
