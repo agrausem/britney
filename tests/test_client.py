@@ -182,3 +182,8 @@ class TestClientGenerator(unittest.TestCase):
             for method in content['methods']:
                 self.assertEqual(getattr(client, method).name, method) 
 
+    def test_multiple_clients_with_same_method_names(self):
+        client1 = spyre(os.path.join(self.data_path, 'api.json'))
+        client2 = spyre(os.path.join(self.data_path, 'api2.json'))
+        self.assertFalse(client1.test_requires == client2.test_requires)
+

@@ -36,8 +36,6 @@ class Spore(object):
 
     def __new__(cls, *args, **kwargs):
         spec_errors, method_errors = {}, {}
-        setattr(cls, 'middlewares', [])
-        setattr(cls, 'defaults', {})
 
         if not kwargs.get('name', ''):
             spec_errors['name'] = 'A name for this client is required'
@@ -52,27 +50,32 @@ class Spore(object):
         else:
             authentication = kwargs.get('authentication', None)
             formats = kwargs.get('formats', None)
+
+            instance = super(Spore, cls).__new__(cls)
+            setattr(instance, 'middlewares', [])
+            setattr(instance, 'defaults', {})
+
             for method_name, method_description in kwargs['methods'].items():
                 try:
                     method = SporeMethod(
                         name=method_name, 
                         base_url=kwargs['base_url'],
-                        middlewares=cls.middlewares,
+                        middlewares=instance.middlewares,
                         global_authentication=authentication,
                         global_formats=formats,
-                        defaults=cls.defaults,
+                        defaults=instance.defaults,
                         **method_description
                     )
                 except errors.SporeMethodBuildError as method_error:
                     method_errors[method_name] = method_error
                 else:
-                    setattr(cls, method_name, method)
+                    setattr(instance, method_name, method)
             
         if spec_errors or method_errors:
             raise errors.SporeClientBuildError(spec_errors,
                     method_errors)
-
-        return super(Spore, cls).__new__(cls)
+        
+        return instance
 
     def __init__(self, name='', base_url='', authority='', formats=None, 
             version='', authentication=None, methods=None, meta=None): 
@@ -370,6 +373,8 @@ class SporeMethod(object):
             response.environ = environ
 
         self.check_status(response)
-        map(lambda hook: hook(response), hooks)
+
+        for hook in hooks:
+            hook(response)
 
         return response

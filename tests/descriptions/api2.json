@@ -8,8 +8,8 @@
         },
         "test_requires": {
             "method": "GET",
-            "path": "/test-requires/:id.:format",
-            "required_params": ["format", "id"]
+            "path": "/test-requires/:id/:code.:format",
+            "required_params": ["format", "id", "code"]
         },
         "test_optionals": {
             "method": "GET",
