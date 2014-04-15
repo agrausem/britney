@@ -15,7 +15,7 @@ with open('requirements.txt') as requirements:
 
 setup(
     name='britney',
-    version='0.3.0',
+    version='0.3.1',
     author='Arnaud Grausem',
     author_email='arnaud.grausem@gmail.com',
     maintainer='Arnaud Grausem',
