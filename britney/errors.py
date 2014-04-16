@@ -42,6 +42,3 @@ class SporeMethodStatusError(Exception):
 
     def __str__(self):
         return "Error %s" % self.response.status_code
-
-    def __repr__(self):
-        return self.response.status_code
