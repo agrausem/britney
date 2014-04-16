@@ -114,6 +114,21 @@ class TestDefaultParametersValue(unittest.TestCase):
         self.assertDictContainsSubset(self.client.my_method.defaults,
                                       {'format': 'json', 'username': 'toto'})
 
+    def test_remove_default(self):
+        self.client.remove_default('format')
+        self.assertDictContainsSubset(self.client.defaults,
+                                      {'username': 'toto'})
+
+    def test_method_remove_default(self):
+        self.client.remove_default('format')
+        self.assertDictContainsSubset(self.client.my_method.defaults,
+                                      {'username': 'toto'})
+
+    def test_remove_default_not_existing(self):
+        self.client.remove_default('id')
+        self.assertDictContainsSubset(self.client.defaults,
+                                      {'format': 'json', 'username': 'toto'})
+
 
     def test_not_impacted(self):
         params = self.client.my_method.build_params()

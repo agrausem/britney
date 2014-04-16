@@ -124,7 +124,7 @@ class Spore(object):
         """
         """
         try:
-            del self.defaults['param']
+            del self.defaults[param]
         except KeyError:
             pass
 
