@@ -53,7 +53,7 @@ class Mock(Middleware):
         from britney.middleware import utils
 
         def expected_response(request):
-            return utils.fake_reponse(request, 'OK', status_code=200,
+            return utils.fake_response(request, 'OK', status_code=200,
             headers={'Content-Type': 'text-plain'})
 
         client = britney.spyre('/path/to/spec.json')
@@ -76,7 +76,7 @@ class Mock(Middleware):
             if path == finalized_request.path_info:
                 response = func(finalized_request())
                 response.environ = environ
-                return self.mock_process_response(response) or None
+                return self.mock_process_response(response)
 
     def mock_process_response(self, response):
         if self.middlewares:
@@ -85,4 +85,3 @@ class Mock(Middleware):
                         predicate(response.environ):
                     middleware.process_response(response)
         return response
-        

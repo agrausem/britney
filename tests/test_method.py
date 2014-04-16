@@ -2,8 +2,9 @@
 
 from functools import partial
 import unittest
-from britney.core import SporeMethod
+from britney.core import SporeMethod, Spore
 from britney import errors
+from britney.middleware.utils import Mock, fake_response
 
 
 class TestMethodAuthentication(unittest.TestCase):
@@ -260,3 +261,47 @@ class TestMethodPayload(unittest.TestCase):
         method = self.method(required_payload=True)
         payload = method.build_payload(data={'test': 'data'})
         self.assertEqual(payload, {'test': 'data'})
+
+
+class TestMethodStatus(unittest.TestCase):
+    """ Test checking expected http status from response
+    """
+
+    def setUp(self):
+        self.build_response = lambda status: partial(fake_response,
+                                                     content='fake_response',
+                                                     status_code=status)
+        self.client = Spore(name='my_client', base_url='http://my_url.org',
+                methods={'my_method': {'method': 'GET', 'path': '/api'}})
+
+    def tearDown(self):
+        self.client.middlewares = []
+
+    def test_ok_http_status(self):
+        fakes = {}
+        for status in (200, 220, 235, 298):
+            fakes['/api'] = self.build_response(status)
+            self.client.enable(Mock, fakes=fakes)
+            result = self.client.my_method()
+            self.assertIsNone(self.client.my_method.check_status(result))
+            self.client.middlewares = []
+
+    def test_not_ok_status_with_expected(self):
+        self.client.my_method.expected_status = [302, 401, 403, 404, 502]
+        fakes = {}
+        for status in [302, 401, 403, 404, 502]:
+            fakes['/api'] = self.build_response(status)
+            self.client.enable(Mock, fakes=fakes)
+            result = self.client.my_method()
+            self.assertIsNone(self.client.my_method.check_status(result))
+            self.client.middlewares = []
+
+    def test_unexpected_status(self):
+        with self.assertRaises(errors.SporeMethodStatusError) as status_error:
+            fake_response_func = self.build_response(502)
+            self.client.enable(Mock, fakes={'/api': fake_response_func})
+            result = self.client.my_method()
+            self.client.my_method.check_status(result)
+
+        error = status_error.exception
+        self.assertEqual(str(error), 'Error 502')
