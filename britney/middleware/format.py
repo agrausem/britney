@@ -22,13 +22,13 @@ class Format(Middleware):
 
 
     @abc.abstractmethod
-    def dump(self):
+    def dump(self, data):
         """
         """
         pass
 
     @abc.abstractmethod
-    def load(self):
+    def load(self, data):
         """
         """
         pass

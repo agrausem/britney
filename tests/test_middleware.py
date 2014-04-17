@@ -3,6 +3,7 @@
 import unittest
 from britney.middleware import Middleware
 from britney.middleware import auth
+from britney.middleware import format as format_
 
 
 class TestMiddlewareBase(unittest.TestCase):
@@ -104,3 +105,46 @@ class TestApiKeyAuth(unittest.TestCase):
         header, value = self.environ['spore.headers'][0]
         self.assertEqual(header, 'X-API-Key')
         self.assertEqual(value, 'ApiKey fbfryfrbfyrbfr:test')
+
+
+class TestBaseFormatMiddleware(unittest.TestCase):
+
+    class Quoted(format_.Format):
+
+        def dump(self, data):
+            return "'%s'" % data
+
+        def load(self, data):
+            return data.strip("'")
+
+        @property
+        def content_type(self):
+            return ('Content-Type', 'quoted')
+
+        @property
+        def accept_type(self):
+            return ('Accept', 'quoted')
+
+    def setUp(self):
+        self.middleware = self.Quoted()
+        self.environ = {'spore.payload': None, 'spore.headers': []}
+
+    def test_process_request_without_payload(self):
+        self.assertIsNone(self.middleware.process_request(self.environ))
+        self.assertListEqual(self.environ['spore.headers'],
+                             [('Accept', 'quoted')])
+
+    def test_process_request_with_payload(self):
+        self.environ['spore.payload'] = 'my_payload'
+        self.assertIsNone(self.middleware.process_request(self.environ))
+        self.assertListEqual(self.environ['spore.headers'],
+                             [('Accept', 'quoted'), ('Content-Type', 'quoted')]
+        )
+        self.assertEqual(self.environ['spore.payload'], "'my_payload'")
+
+    def test_process_response(self):
+       Response = type('Response', (object, ), {'text': "'my_content'", 
+           'data': ""})
+       response = Response()
+       self.assertIsNone(self.middleware.process_response(response))
+       self.assertEqual(response.data, "my_content")
