@@ -4,6 +4,7 @@ import unittest
 from britney.middleware import Middleware
 from britney.middleware import auth
 from britney.middleware import format as format_
+from functools import partial
 
 
 class TestMiddlewareBase(unittest.TestCase):
@@ -35,13 +36,11 @@ class TestMiddlewareBase(unittest.TestCase):
         self.assertEqual(environ, {'spore.headers': []})
 
     def test_process_response(self):
-        from functools import partial
         process_response = lambda response: response
         setattr(self.middleware, 'process_response', process_response)
         self.assertIsInstance(self.middleware({}), partial)
 
     def test_both_process_implemented(self):
-        from functools import partial
         process_response = lambda response: response
         setattr(self.middleware, 'process_response', process_response)
         process_request = lambda environ: None
@@ -148,3 +147,25 @@ class TestBaseFormatMiddleware(unittest.TestCase):
        response = Response()
        self.assertIsNone(self.middleware.process_response(response))
        self.assertEqual(response.data, "my_content")
+
+
+class TestJsonFormatMiddleware(unittest.TestCase):
+
+    def setUp(self):
+        self.middleware = format_.Json()
+        self.environ = {'spore.payload': {'data': 'my_data'}, 
+                        'spore.headers': []}
+
+    def test_calling_middleware(self):
+        callback = self.middleware(self.environ)
+        self.assertIsInstance(callback, partial)
+        self.assertListEqual(self.environ['spore.headers'], [
+            ('Accept', 'application/json'), 
+            ('Content-Type', 'application/json')]
+        ) 
+        self.assertEqual(self.environ['spore.payload'], '{"data": "my_data"}')
+        Response = type('Response', (object, ), {
+           'text': '{"content": "my_content"}', 'data': ""})
+        response = Response()
+        callback(response)
+        self.assertDictEqual(response.data, {'content': 'my_content'})
