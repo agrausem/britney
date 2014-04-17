@@ -19,6 +19,41 @@ class TestMiddlewareBase(unittest.TestCase):
         self.middleware.add_headers(self.environ, header_one, header_two)
         self.assertEqual(len(self.environ['spore.headers']), 2)
 
+    def test_process_request(self):
+        process_request = lambda environ: None
+        setattr(self.middleware, 'process_request', process_request)
+        environ = {}
+        self.assertIsNone(self.middleware(environ))
+        self.assertEqual(environ, {'spore.headers': []})
+
+    def test_process_request_returning_response(self):
+        process_request = lambda environ: 'fake_response'
+        setattr(self.middleware, 'process_request', process_request)
+        environ = {}
+        self.assertIsNotNone(self.middleware(environ))
+        self.assertEqual(environ, {'spore.headers': []})
+
+    def test_process_response(self):
+        from functools import partial
+        process_response = lambda response: response
+        setattr(self.middleware, 'process_response', process_response)
+        self.assertIsInstance(self.middleware({}), partial)
+
+    def test_both_process_implemented(self):
+        from functools import partial
+        process_response = lambda response: response
+        setattr(self.middleware, 'process_response', process_response)
+        process_request = lambda environ: None
+        setattr(self.middleware, 'process_request', process_request)
+        self.assertIsInstance(self.middleware({}), partial)
+
+    def test_both_implemented_but_bypass(self):
+        process_response = lambda response: response
+        setattr(self.middleware, 'process_response', process_response)
+        process_request = lambda environ: 'fake_response'
+        setattr(self.middleware, 'process_request', process_request)
+        self.assertEqual(self.middleware({}), 'fake_response')
+
 
 class TestAuthMiddlewareBase(unittest.TestCase):
 
