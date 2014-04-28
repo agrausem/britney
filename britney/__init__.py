@@ -15,6 +15,9 @@ from .core import Spore
 from .errors import SporeMethodStatusError as HTTPError
 
 
+VERSION = '0.3.2'
+
+
 def spyre(spec_uri, base_url=None):
     """
     """
