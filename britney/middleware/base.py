@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-britney.base.middleware
+britney.middleware.base
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 :copyright: (c) 2013 by Arnaud Grausem
