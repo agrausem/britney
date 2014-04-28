@@ -13,7 +13,7 @@ with open('requirements.txt') as requirements:
     dependency_links = [link.split()[1] for link in lines if 
             link.startswith('-f')]
 
-version = __import__('britney').VERSION
+version = __import__('britney.utils', fromlist=('utils',)).VERSION
 
 setup(
     name='britney',

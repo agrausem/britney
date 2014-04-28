@@ -17,6 +17,7 @@ from requests.compat import urlparse
 
 from . import errors
 from .request import RequestBuilder
+from .utils import get_user_agent
 
 
 class Spore(object):
@@ -266,7 +267,7 @@ class SporeMethod(object):
             'SCRIPT_NAME': script_name(parsed_base_url),
             'PATH_INFO': path_info,
             'QUERY_STRING': query_string,
-            'HTTP_USER_AGENT': 'britney',
+            'HTTP_USER_AGENT': get_user_agent(),
             'spore.expected_status': self.expected_status,
             'spore.authentication': self.authentication,
             'spore.params': '',
