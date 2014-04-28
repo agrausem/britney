@@ -70,16 +70,18 @@ class RequestBuilder(object):
 
         return uri
 
+    @property
     def headers(self):
         """
         """
+        # headers = self.env.get('spore.headers')
         return dict(self.env.get('spore.headers', ()))
 
+    @property
     def data(self):
         """
         """
         return self.env['spore.payload'] or {}
-
 
     def __call__(self):
         """
@@ -87,7 +89,7 @@ class RequestBuilder(object):
         request = Request(
                 method=self.env['REQUEST_METHOD'],
                 url=self.uri,
-                data=self.data(),
-                headers=self.headers()
+                data=self.data,
+                headers=self.headers
         )
         return request.prepare()

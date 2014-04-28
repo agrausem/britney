@@ -21,11 +21,11 @@ class TestRequestBuilderUrl(unittest.TestCase):
             self.assertEqual(built_request.uri, test_data['url'])
 
     def test_headers(self):
-        environ = {'spore.headers': [('Authorization', 'cdbcdvvvfvf=='),
-            ('Content-Type', 'text/plain')]}
+        environ = {'spore.headers': {'Authorization': 'cdbcdvvvfvf==',
+            'Content-Type': 'text/plain'}}
         environ.update(self.data[0]['env'])
         built_request = RequestBuilder(environ)
-        headers = built_request.headers()
+        headers = built_request.headers
         self.assertIn('Authorization', headers)
         self.assertIn('Content-Type', headers)
         self.assertEqual(headers['Authorization'], 'cdbcdvvvfvf==')
@@ -35,12 +35,12 @@ class TestRequestBuilderUrl(unittest.TestCase):
         environ = {'spore.payload': {'param': 'test'}}
         environ.update(self.data[0]['env'])
         built_request = RequestBuilder(environ)
-        payload = built_request.data()
+        payload = built_request.data
         self.assertEqual(payload, {'param': 'test'})
 
     def test_call(self):
-        environ = {'spore.headers': [('Authorization', 'cdbcdvvvfvf=='),
-            ('Content-Type', 'text/plain')], 'spore.payload': {'test': 'test'}}
+        environ = {'spore.headers': {'Authorization': 'cdbcdvvvfvf==',
+            'Content-Type': 'text/plain'}, 'spore.payload': {'test': 'test'}}
         environ.update(self.data[0]['env'])
         built_request = RequestBuilder(environ)
         prepared_request = built_request()

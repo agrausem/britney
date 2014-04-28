@@ -11,10 +11,10 @@ britney.middleware.format
 import abc
 import json
 
-from . import Middleware
+from . import base
 
 
-class Format(Middleware):
+class Format(base.Middleware):
     """
     """
 
@@ -34,7 +34,7 @@ class Format(Middleware):
         pass
     
     @abc.abstractproperty
-    def accept_type(self):
+    def accept(self):
         """
         """
         pass
@@ -45,12 +45,21 @@ class Format(Middleware):
         """
         pass
 
+    def content_length(self, content):
+        """
+        :param content:
+        :return: content length header information
+        """
+        return 'Content-Length', len(content)
+
+
     def process_request(self, environ):
-        headers = [self.accept_type]
+        base.add_header(environ, *self.accept)
         if environ['spore.payload']:
-            environ['spore.payload'] = self.dump(environ['spore.payload'])
-            headers.append(self.content_type)
-        self.add_headers(environ, *headers)
+            payload = self.dump(environ['spore.payload'])
+            environ['spore.payload'] = payload
+            base.add_header(environ, *self.content_length(payload))
+            base.add_header(environ, *self.content_type)
 
     def process_response(self, response):
         response.data = self.load(response.text)
@@ -68,8 +77,8 @@ class Json(Format):
 
     @property
     def content_type(self):
-        return ('Content-Type', 'application/json')
+        return 'Content-Type', 'application/json'
 
     @property
-    def accept_type(self):
-        return ('Accept', 'application/json')
+    def accept(self):
+        return 'Accept', 'application/json'
