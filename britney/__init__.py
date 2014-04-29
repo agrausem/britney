@@ -10,14 +10,16 @@ Environment)
 This project is based on spyre
 """
 
-import requests
-from .core import Spore
+import urllib
+import json
 from .errors import SporeMethodStatusError as HTTPError
 
 
-def spyre(spec_uri, base_url=None):
+def new(spec_uri, base_url=None):
     """
     """
+    from .core import Spore
+
     if spec_uri.startswith('http'):
         func = _new_from_url
     else:
@@ -29,11 +31,10 @@ def spyre(spec_uri, base_url=None):
 
     return Spore(**api_description)
 
+
 def _new_from_file(spec_uri):
     """
     """
-    import json
-
     with open(spec_uri, 'r') as spec_file:
         spec = json.loads(spec_file.read())
 
@@ -43,5 +44,11 @@ def _new_from_file(spec_uri):
 def _new_from_url(spec_uri):
     """
     """
-    response = requests.get(spec_uri)
-    return response.json()
+    try:
+        response = urllib.urlopen(spec_uri)
+    except AttributeError:
+        response = urllib.request.urlopen(spec_uri)
+    return json.loads(response.read())
+
+
+spyre = new
