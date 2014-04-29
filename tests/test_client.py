@@ -107,27 +107,25 @@ class TestDefaultParametersValue(unittest.TestCase):
         self.client.add_default('username', 'toto')
 
     def test_default(self):
-        self.assertDictContainsSubset(self.client.defaults,
-                                      {'format': 'json', 'username': 'toto'})
+        self.assertEqual(self.client.defaults['format'], 'json')
+        self.assertEqual(self.client.defaults['username'], 'toto')
 
     def test_method_default(self):
-        self.assertDictContainsSubset(self.client.my_method.defaults,
-                                      {'format': 'json', 'username': 'toto'})
+        self.assertEqual(self.client.my_method.defaults['format'], 'json')
+        self.assertEqual(self.client.my_method.defaults['username'], 'toto')
 
     def test_remove_default(self):
         self.client.remove_default('format')
-        self.assertDictContainsSubset(self.client.defaults,
-                                      {'username': 'toto'})
+        self.assertEqual(self.client.defaults['username'], 'toto')
 
     def test_method_remove_default(self):
         self.client.remove_default('format')
-        self.assertDictContainsSubset(self.client.my_method.defaults,
-                                      {'username': 'toto'})
+        self.assertEqual(self.client.my_method.defaults['username'], 'toto')
 
     def test_remove_default_not_existing(self):
         self.client.remove_default('id')
-        self.assertDictContainsSubset(self.client.defaults,
-                                      {'format': 'json', 'username': 'toto'})
+        self.assertEqual(self.client.defaults['format'], 'json')
+        self.assertEqual(self.client.defaults['username'], 'toto')
 
 
     def test_not_impacted(self):
@@ -169,7 +167,7 @@ class TestClientGenerator(unittest.TestCase):
             spyre('/path/dont/exist/api.json')
         
     def test_no_description_url(self):
-        with self.assertRaises(requests.ConnectionError) as http_error:
+        with self.assertRaises(IOError) as http_error:
             spyre('http://description.not.fou.nd/api.json')
 
     def test_no_valid_json_document(self):
