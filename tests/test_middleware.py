@@ -78,9 +78,8 @@ class TestBasicAuth(unittest.TestCase):
 
     def test_auth(self):
         self.middleware(self.environ)
-        header, value = self.environ['spore.headers'].items()[0]
-        self.assertEqual(header, 'Authorization')
-        self.assertEqual(value, auth._basic_auth('test', '0123456789'))
+        self.assertEqual(self.environ['spore.headers']['Authorization'],
+                         auth._basic_auth('test', '0123456789'))
 
 
 class TestApiKeyAuth(unittest.TestCase):
@@ -93,18 +92,16 @@ class TestApiKeyAuth(unittest.TestCase):
         middleware_simple = auth.ApiKey(key_name='X-API-Key',
                 key_value='Bcdhcd7522HVGC')
         middleware_simple(self.environ)
-        header, value = self.environ['spore.headers'].items()[0]
-        self.assertEqual(header, 'X-API-Key')
-        self.assertEqual(value, 'Bcdhcd7522HVGC')
+        self.assertEqual(self.environ['spore.headers']['X-API-Key'],
+                         'Bcdhcd7522HVGC')
 
     def test_auth_callable(self):
         self.middleware_callable = auth.ApiKey(key_name='X-API-Key',
                 key_value=self.callable_format, key='fbfryfrbfyrbfr',
                 user='test')
         self.middleware_callable(self.environ)
-        header, value = self.environ['spore.headers'].items()[0]
-        self.assertEqual(header, 'X-API-Key')
-        self.assertEqual(value, 'ApiKey fbfryfrbfyrbfr:test')
+        self.assertEqual(self.environ['spore.headers']['X-API-Key'], 
+                         'ApiKey fbfryfrbfyrbfr:test')
 
 
 class TestBaseFormatMiddleware(unittest.TestCase):
