@@ -6,6 +6,9 @@ britney.middleware.auth
 
 """
 
+__all__ = ['Basic', 'ApiKey']
+
+
 import base64
 from . import base
 
