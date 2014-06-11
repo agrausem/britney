@@ -80,9 +80,8 @@ class RequestBuilder(object):
             'User-Agent': self.env['HTTP_USER_AGENT'],
             'Date': get_http_date()
         }
-        headers.update(self.env.get('spore.headers'))
-        self.env['spore.headers'] = headers
-        return headers
+        self.env['spore.headers'].update(headers)
+        return self.env['spore.headers']
 
     @property
     def data(self):
