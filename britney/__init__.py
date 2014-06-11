@@ -46,9 +46,11 @@ def _new_from_url(spec_uri):
     """
     try:
         response = urllib.urlopen(spec_uri)
+        desc = response.read()
     except AttributeError:
         response = urllib.request.urlopen(spec_uri)
-    return json.loads(response.read())
+        desc = response.read().decode()
+    return json.loads(desc)
 
 
 spyre = new
