@@ -90,45 +90,54 @@ class TestDefaultParametersValue(unittest.TestCase):
 
     def setUp(self):
         self.client = Spore(name='my_client', base_url='http://my_url.org',
-                methods={
-                    'my_method': {'method': 'GET', 'path': '/api'},
-                    'my_req_method': {'method': 'GET', 'path': '/api',
-                        'required_params': ['format']},
-                    'my_opt_method': {'method': 'GET', 'path': '/api',
-                        'optional_params': ['format']},
-                    'my_both_method': {'method': 'GET', 'path': '/api',
-                        'required_params': ['format'], 'optional_params':
-                        ['username']},
-                    'my_super_method': {'method': 'GET', 'path': '/api', 
-                        'required_params': ['format', 'last_name'],
-                        'optional_params': ['first_name']}
-                })
+                            methods={
+                                'my_method': {
+                                    'method': 'GET',
+                                    'path': '/api'
+                                },
+                                'my_req_method': {
+                                    'method': 'GET',
+                                    'path': '/api',
+                                    'required_params': ['format']
+                                }, 'my_opt_method': {
+                                    'method': 'GET',
+                                    'path': '/api',
+                                    'optional_params': ['format']
+                                }, 'my_both_method': {
+                                    'method': 'GET',
+                                    'path': '/api',
+                                    'required_params': ['format'],
+                                    'optional_params': ['username']
+                                }, 'my_super_method': {
+                                    'method': 'GET',
+                                    'path': '/api',
+                                    'required_params': ['format',
+                                                        'last_name'],
+                                    'optional_params': ['first_name']
+                                }})
         self.client.add_default('format', 'json')
         self.client.add_default('username', 'toto')
 
     def test_default(self):
-        self.assertDictContainsSubset(self.client.defaults,
-                                      {'format': 'json', 'username': 'toto'})
+        self.assertEqual(self.client.defaults['format'], 'json')
+        self.assertEqual(self.client.defaults['username'], 'toto')
 
     def test_method_default(self):
-        self.assertDictContainsSubset(self.client.my_method.defaults,
-                                      {'format': 'json', 'username': 'toto'})
+        self.assertEqual(self.client.my_method.defaults['format'], 'json')
+        self.assertEqual(self.client.my_method.defaults['username'], 'toto')
 
     def test_remove_default(self):
         self.client.remove_default('format')
-        self.assertDictContainsSubset(self.client.defaults,
-                                      {'username': 'toto'})
+        self.assertEqual(self.client.defaults['username'], 'toto')
 
     def test_method_remove_default(self):
         self.client.remove_default('format')
-        self.assertDictContainsSubset(self.client.my_method.defaults,
-                                      {'username': 'toto'})
+        self.assertEqual(self.client.my_method.defaults['username'], 'toto')
 
     def test_remove_default_not_existing(self):
         self.client.remove_default('id')
-        self.assertDictContainsSubset(self.client.defaults,
-                                      {'format': 'json', 'username': 'toto'})
-
+        self.assertEqual(self.client.defaults['format'], 'json')
+        self.assertEqual(self.client.defaults['username'], 'toto')
 
     def test_not_impacted(self):
         params = self.client.my_method.build_params()

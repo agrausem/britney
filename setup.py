@@ -15,7 +15,7 @@ with open('requirements.txt') as requirements:
 
 setup(
     name='britney',
-    version='0.3.1',
+    version='0.4.0',
     author='Arnaud Grausem',
     author_email='arnaud.grausem@gmail.com',
     maintainer='Arnaud Grausem',
@@ -39,5 +39,6 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4'
     )
 )
