@@ -12,23 +12,26 @@ class RequestBuilder(object):
     """
     """
 
+    _OLD_PLACEHOLDER_P = re.compile(r':(\w+)')
+    _PARAMS_P = re.compile(r'(?<={)\w+(?=})')
+
     def __init__(self, env):
         self.env = env
-        self.path_info = env['PATH_INFO']
-        self.query_string = env.get('QUERY_STRING', '')
+        self.param_names = []
+        self.path_info = self._replace_params(env['PATH_INFO'])
+        self.query_string = self._replace_params(env.get('QUERY_STRING', ''))
 
-        # building path and query with params submitted
-        for param, value in env['spore.params']:
-            self.path_info, p_changed = re.subn(':%s' % param, value, 
-                    self.path_info)
-            self.query_string, q_changed = re.subn(':%s' % param, value,
-                    self.query_string)
-            if not p_changed and not q_changed:
-                self.query_string += '&%s=%s' % (param, value)
+        # building query with optional params submitted
+        for param, value in self.env['spore.params']:
+            if param not in self.param_names:
+                if isinstance(value, (list, tuple)):
+                    value = '&'.join('%s=%s' % (param, mvalue)
+                                     for mvalue in value)
+                else:
+                    value = '%s=%s' % (param, value)
+                self.query_string += '&%s' % value
 
-        # correct query string
-        if self.query_string.startswith('&'):
-            self.query_string = self.query_string[1:]
+        self.query_string = self.query_string.lstrip('&')
 
     @property
     def application_uri(self):
@@ -41,7 +44,7 @@ class RequestBuilder(object):
         else:
             if self.env['spore.userinfo']:
                 uri += self.env['spore.userinfo'] + '@'
-            
+
             uri += self.env['SERVER_NAME']
 
             if self.env['wsgi.url_scheme'] == 'https':
@@ -52,7 +55,7 @@ class RequestBuilder(object):
                     uri += ':%d' % self.env['SERVER_PORT']
 
         return uri + quote(self.env['SCRIPT_NAME'] or '/')
-    
+
     @property
     def uri(self):
         """
@@ -70,6 +73,20 @@ class RequestBuilder(object):
 
         return uri
 
+    def _simple_params(self):
+        return {
+            key: value for key, value
+            in self.env['spore.params']
+            if not isinstance(value, (list, tuple))
+        }
+
+    def _replace_params(self, template):
+        # dealing with first version of spec (placeholder => ':')
+        template = self._OLD_PLACEHOLDER_P.sub(r'{\1}', template)
+
+        self.param_names.extend(self._PARAMS_P.findall(template))
+        return template.format(**self._simple_params())
+
     def headers(self):
         """
         """
@@ -80,14 +97,13 @@ class RequestBuilder(object):
         """
         return self.env['spore.payload'] or {}
 
-
     def __call__(self):
         """
         """
         request = Request(
-                method=self.env['REQUEST_METHOD'],
-                url=self.uri,
-                data=self.data(),
-                headers=self.headers()
+            method=self.env['REQUEST_METHOD'],
+            url=self.uri,
+            data=self.data(),
+            headers=self.headers()
         )
         return request.prepare()

@@ -65,5 +65,19 @@
             "spore.params": [["id", "9"], ["format", "xml"]]
         },
         "url": "https://host-test.org:8082/users/9.xml?format=xml&fill=true"
+    },{
+        "env": {
+            "HTTP_HOST": "host-test.org:8082",
+            "REQUEST_METHOD": "POST",
+            "SERVER_NAME": "my_host.org",
+            "SERVER_PORT": 443, 
+            "SCRIPT_NAME": "",
+            "PATH_INFO": "/users/:id.:format",
+            "QUERY_STRING": "",
+            "wsgi.url_scheme": "https",
+            "spore.userinfo": "toto:123456789",
+            "spore.params": [["id", "9"], ["format", "xml"], ["names", ["toto", "titi"]]]
+        },
+        "url": "https://host-test.org:8082/users/9.xml?names=toto&names=titi"
     }
 ]
