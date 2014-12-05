@@ -7,6 +7,7 @@
             "SCRIPT_NAME": "/redmine",
             "PATH_INFO": "/users.:format",
             "QUERY_STRING": "",
+            "HTTP_USER_AGENT": "britney",
             "wsgi.url_scheme": "http",
             "spore.userinfo": "",
             "spore.params": [["format", "json"], ["test_query", "true"]]
@@ -19,6 +20,7 @@
             "SERVER_PORT": 8080, 
             "SCRIPT_NAME": "/redmine",
             "PATH_INFO": "/users/:id.:format",
+            "HTTP_USER_AGENT": "britney",
             "QUERY_STRING": "",
             "wsgi.url_scheme": "http",
             "spore.userinfo": "toto:123456789",
@@ -33,6 +35,7 @@
             "SCRIPT_NAME": "",
             "QUERY_STRING": "",
             "PATH_INFO": "/users/:id.:format",
+            "HTTP_USER_AGENT": "britney",
             "wsgi.url_scheme": "https",
             "spore.userinfo": "toto:123456789",
             "spore.params": [["id", "9"], ["format", "xml"]]
@@ -46,6 +49,7 @@
             "SCRIPT_NAME": "/redmine",
             "PATH_INFO": "/users/:id.:format",
             "QUERY_STRING": "",
+            "HTTP_USER_AGENT": "britney",
             "wsgi.url_scheme": "https",
             "spore.userinfo": "",
             "spore.params": [["id", "9"], ["format", "xml"]]
@@ -59,6 +63,7 @@
             "SERVER_PORT": 443, 
             "SCRIPT_NAME": "",
             "PATH_INFO": "/users/:id.:format",
+            "HTTP_USER_AGENT": "britney",
             "QUERY_STRING": "format=:format&fill=true",
             "wsgi.url_scheme": "https",
             "spore.userinfo": "toto:123456789",

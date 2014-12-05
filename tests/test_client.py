@@ -178,7 +178,7 @@ class TestClientGenerator(unittest.TestCase):
             spyre('/path/dont/exist/api.json')
         
     def test_no_description_url(self):
-        with self.assertRaises(requests.ConnectionError) as http_error:
+        with self.assertRaises(IOError) as http_error:
             spyre('http://description.not.fou.nd/api.json')
 
     def test_no_valid_json_document(self):

@@ -11,7 +11,7 @@ britney.middleware.utils
 import requests
 from requests_testadapter import TestAdapter
 from six import b
-from . import Middleware
+from . import base
 from ..request import RequestBuilder
 
 
@@ -22,8 +22,8 @@ def fake_response(request, content, status_code=200, headers=None):
     :type request:  ~requests.PreparedRequest
     :param content: the content of the response
     :type content: string
-    :param status: the status of the response. Defaults to 200
-    :type status: integer
+    :param status_code: the status of the response. Defaults to 200
+    :type status_code: integer
     :param headers: the headers to set
     :type headers: a dictionnary
     :return: a fake response
@@ -36,7 +36,7 @@ def fake_response(request, content, status_code=200, headers=None):
     return method(request.url)
     
 
-class Mock(Middleware):
+class Mock(base.Middleware):
     """ This middleware can add the ability to fake a server that exposes an
     API.
 

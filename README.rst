@@ -16,6 +16,14 @@ This module requires a SPORE description of an API. Some descriptions for known 
 .. image:: https://coveralls.io/repos/agrausem/britney/badge.png?branch=master
     :target: https://coveralls.io/r/agrausem/britney?branch=master
 
+.. image:: https://pypip.in/v/britney/badge.png
+    :target: https://crate.io/packages/britney-http-signature/
+    :alt: Latest PyPI version
+
+.. image:: https://pypip.in/d/britney/badge.png
+    :target: https://crate.io/packages/britney-http-signature/
+    :alt: Number of PyPI downloads
+
 
 
 

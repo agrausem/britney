@@ -8,27 +8,13 @@ britney.middleware
 :license: BSD see LICENSE for details
 """
 
-from functools import partial
+from .auth import *
+from .format import *
 
+from pkg_resources import iter_entry_points
 
-class Middleware(object):
-    """
-    """
-
-    def add_headers(self, environ, *headers):
-        """
-        """
-        for header in headers:
-            environ['spore.headers'].append(header)
-
-    def __call__(self, environ):
-        """
-        """
-        if hasattr(self, 'process_request'):
-            environ.setdefault('spore.headers', [])
-            response = self.process_request(environ)
-            if response is not None:
-                return response
-        if hasattr(self, 'process_response'):
-            callback = partial(self.process_response)
-            return callback
+for entry_point in iter_entry_points('britney.plugins.middleware'):
+    try:
+        locals()[entry_point.name] = entry_point.load()
+    except ImportError:
+        pass

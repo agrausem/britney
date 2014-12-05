@@ -6,6 +6,7 @@
 import re
 from requests import Request
 from requests.compat import quote
+from .utils import get_http_date
 
 
 class RequestBuilder(object):
@@ -87,11 +88,19 @@ class RequestBuilder(object):
         self.param_names.extend(self._PARAMS_P.findall(template))
         return template.format(**self._simple_params())
 
+    @property
     def headers(self):
         """
         """
-        return dict(self.env.get('spore.headers', ()))
+        headers = {
+            'Host': '{0[SERVER_NAME]}:{0[SERVER_PORT]}'.format(self.env),
+            'User-Agent': self.env['HTTP_USER_AGENT'],
+            'Date': get_http_date()
+        }
+        self.env['spore.headers'].update(headers)
+        return self.env['spore.headers']
 
+    @property
     def data(self):
         """
         """
@@ -103,7 +112,7 @@ class RequestBuilder(object):
         request = Request(
             method=self.env['REQUEST_METHOD'],
             url=self.uri,
-            data=self.data(),
-            headers=self.headers()
+            data=self.data,
+            headers=self.headers
         )
         return request.prepare()

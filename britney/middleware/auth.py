@@ -6,20 +6,22 @@ britney.middleware.auth
 
 """
 
-from base64 import b64encode
+__all__ = ['Basic', 'ApiKey']
 
-from . import Middleware
+
+import base64
+from . import base
 
 
 def _basic_auth(username, password):
     """
     """
-    return 'Basic ' + b64encode(
+    return 'Basic ' + base64.b64encode(
         ('%s:%s' % (username, password)).encode('latin1')
     ).strip().decode('latin1')
 
 
-class Auth(Middleware):
+class Auth(base.Middleware):
     """
     """
 
@@ -44,8 +46,8 @@ class Basic(Auth):
     def process_request(self, environ):
         """
         """
-        header = ('Authorization', _basic_auth(self.username, self.password))
-        self.add_headers(environ, header)
+        base.add_header(environ, 'Authorization',
+                        _basic_auth(self.username, self.password))
 
 
 class ApiKey(Auth):
@@ -62,5 +64,4 @@ class ApiKey(Auth):
     def process_request(self, environ):
         """
         """
-        header = (self.key, self.value)
-        self.add_headers(environ, header)
+        base.add_header(environ, self.key, self.value)
