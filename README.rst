@@ -17,11 +17,11 @@ This module requires a SPORE description of an API. Some descriptions for known 
     :target: https://coveralls.io/r/agrausem/britney?branch=master
 
 .. image:: https://pypip.in/v/britney/badge.png
-    :target: https://crate.io/packages/britney-http-signature/
+    :target: https://crate.io/packages/britney/
     :alt: Latest PyPI version
 
 .. image:: https://pypip.in/d/britney/badge.png
-    :target: https://crate.io/packages/britney-http-signature/
+    :target: https://crate.io/packages/britney/
     :alt: Number of PyPI downloads
 
 
