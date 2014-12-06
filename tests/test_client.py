@@ -9,6 +9,7 @@ from britney import spyre
 from britney.core import Spore
 from britney.core import SporeMethod
 from britney.middleware import auth
+from britney.middleware import format as content_type
 
 
 class TestClientBuilder(unittest.TestCase):
@@ -78,10 +79,26 @@ class TestClientMiddleware(unittest.TestCase):
         request = {'payload': {}}
         self.assertFalse(self.client.middlewares[0][0](request))
 
-    def test_enable_failed(self):
-        with self.assertRaises(ValueError) as callable_error:
+    def test_enable_as_string(self):
+        self.client.enable('Json')
+        self.assertIsInstance(self.client.middlewares[0][1], content_type.Json)
+
+    def test_middleware_not_found(self):
+        with self.assertRaises(AttributeError) as not_found:
             self.client.enable('func', username='my_login',
-                    password='my_password')
+                               password='my_password')
+
+        self.assertEqual(str(not_found.exception),
+                         'Unknown middleware func')
+
+    def test_middleware_not_a_callable(self):
+        with self.assertRaises(ValueError):
+            self.client.enable(('func', 'func2'), username='my_login',
+                               password='my_password')
+
+    def test_middleware_with_bad_args(self):
+        with self.assertRaises(TypeError):
+            self.client.enable('ApiKey', name="name", value="value")
 
 
 class TestDefaultParametersValue(unittest.TestCase):

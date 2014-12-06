@@ -14,6 +14,7 @@ import requests
 import requests.models
 from requests.compat import is_py2
 from requests.compat import urlparse
+import six
 
 from . import errors
 from .request import RequestBuilder
@@ -53,6 +54,9 @@ class Spore(object):
         else:
             authentication = kwargs.get('authentication', None)
             formats = kwargs.get('formats', None)
+            middlewares_module = __import__('britney.middleware',
+                                            fromlist=('middleware'))
+            setattr(cls, '_middlewares_module', middlewares_module)
 
             instance = super(Spore, cls).__new__(cls)
             setattr(instance, 'middlewares', [])
@@ -112,7 +116,13 @@ class Spore(object):
         :param kwargs: parameters to instantiate the middleware
         :raises: ValueError when the middleware is not a callable
         """
-        if not callable(middleware):
+        if isinstance(middleware, (six.string_types, six.text_type)):
+            try:
+                middleware = getattr(self._middlewares_module, middleware)
+            except AttributeError:
+                raise AttributeError('Unknown middleware %s' % middleware)
+
+        elif not callable(middleware):
             raise ValueError(middleware)
 
         self.middlewares.append((predicate, middleware(**kwargs)))
