@@ -7,8 +7,8 @@ python:
 install:
  - pip install -r requirements.txt --use-mirrors
  - pip install -e .
- - pip install coverage
-script: coverage run -m unittest discover tests/
+ - pip install coverage nose --use-mirrors
+script: nosetests --config=nose.cfg
 after_success:
  - pip install coveralls
  - coveralls
