@@ -45,25 +45,25 @@ Create your client
 Basics
 ------
 
-You must create your client with the **spyre** method that reads a json file containing the API description or an URI exposing the description. This can be done like that : ::
+You must create your client with the **new** method that reads a json file containing the API description or an URI exposing the description. This can be done like that : ::
 
     import britney
 
     # from a description file
-    client = britney.spyre('/path/to/api_desc.json')
+    client = britney.new('/path/to/api_desc.json')
 
     # from an URI
-    client = britney.spyre('http://my-server/ws/api_desc.json')
+    client = britney.new('http://my-server/ws/api_desc.json')
 
 
 The base URL
 ------------
 
-If your API description file doesn't specify the base URL of the service, you can pass it to the **spyre** as the named argument **base_url** : ::
+If your API description file doesn't specify the base URL of the service, you can pass it to the **new** as the named argument **base_url** : ::
 
     import britney
 
-    client = britney.spyre('/path/to/api_desc.json', base_url='http://my-server/ws/api/')
+    client = britney.new('/path/to/api_desc.json', base_url='http://my-server/ws/api/')
 
 Middlewares
 -----------
@@ -73,7 +73,7 @@ Sometimes, services need credentials to let you access the data or even send dat
     import britney
     from britney.middleware import auth
     
-    client = britney.spyre('http://my-server/ws/api_desc.json')
+    client = britney.new('http://my-server/ws/api_desc.json')
     client.enable(auth.Basic, username='login', password='xxxxxx')
 
 Sometimes, you want to enable middlewares on certain conditions. Another method called **enable_if** can take a callable predicate as argument that can check the environment parameters of the request : ::
@@ -81,7 +81,7 @@ Sometimes, you want to enable middlewares on certain conditions. Another method 
     import britney
     from britney.middleware import auth 
     
-    client = britney.spyre('http://my-server/ws/api_desc.json')
+    client = britney.new('http://my-server/ws/api_desc.json')
     client.enable_if(lambda request: request['payload'] != '', auth.Basic, username='login', password='xxxxxx')
 
 
@@ -159,7 +159,7 @@ When you create your client, you only should enable your middleware and pass app
     import britney
     from your_module.middleware import Runtime
 
-    client = britney.spyre('http:://server.org/ws/api.json')
+    client = britney.new('http:://server.org/ws/api.json')
     client.enable(Runtime, runtime_key='X-Spore-Runtime')
 
 
@@ -183,7 +183,7 @@ A mock middleware and a function to fake ``Requests`` response are available to 
         
         def setUp(self):
             self.fake_server = {'/test', test_response}
-            self.client = britney.spyre('/path/to/api.json')
+            self.client = britney.new('/path/to/api.json')
             self.runtime_key = 'X-Spore-Runtime'
 
         def test_runtime(self):
