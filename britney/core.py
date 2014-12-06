@@ -12,7 +12,6 @@ for more information about SPORE descriptions
 
 import requests
 import requests.models
-from requests.compat import is_py2
 from requests.compat import urlparse
 import six
 
@@ -295,10 +294,8 @@ class SporeMethod(object):
 
     def get_defaults(self):
         if self.defaults:
-            default_items = self.defaults.viewitems() if is_py2 \
-                else self.defaults.items()
             return {
-                param: value for param, value in default_items
+                param: value for param, value in six.iteritems(self.defaults)
                 if self.is_a_param(param)
             }
         return {}
@@ -320,10 +317,9 @@ class SporeMethod(object):
 
         req_params = frozenset(self.required_params)
         all_params = req_params | frozenset(self.optional_params)
-        passed_args = kwargs.viewkeys() if is_py2 else kwargs.keys()
+        passed_args = set(six.iterkeys(kwargs))
         if self.defaults:
-            default_args = self.get_defaults().viewkeys() if is_py2 \
-                else self.get_defaults().keys()
+            default_args = set(six.iterkeys(self.get_defaults()))
             all_args = set(passed_args).union(default_args)
         else:
             all_args = set(passed_args)
@@ -345,7 +341,7 @@ class SporeMethod(object):
                                               expected=expected)
 
         kwargs.update(**self.get_defaults())
-        return list(kwargs.viewitems() if is_py2 else kwargs.items())
+        return list(six.iteritems(kwargs))
 
     def check_status(self, response):
         """ Checks response status in fact of the *expected_status*
