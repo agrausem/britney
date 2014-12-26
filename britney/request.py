@@ -106,6 +106,12 @@ class RequestBuilder(object):
         """
         return self.env['spore.payload'] or {}
 
+    @property
+    def files(self):
+        """
+        """
+        return self.env.get('spore.files', None)
+
     def __call__(self):
         """
         """
@@ -113,6 +119,7 @@ class RequestBuilder(object):
             method=self.env['REQUEST_METHOD'],
             url=self.uri,
             data=self.data,
+            files=self.files,
             headers=self.headers
         )
         return request.prepare()

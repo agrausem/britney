@@ -300,11 +300,11 @@ class SporeMethod(object):
             }
         return {}
 
-    def build_payload(self, data):
+    def build_payload(self, data, files):
         """
         """
 
-        if not data and self.required_payload:
+        if not (data or files) and self.required_payload:
             raise errors.SporeMethodCallError('Payload is required for '
                                               'this function')
 
@@ -365,11 +365,13 @@ class SporeMethod(object):
 
         hooks = []
         data = kwargs.pop('payload', None)
+        files = kwargs.pop('files', None)
 
         environ = self.base_environ()
         environ.update({
-            'spore.payload': self.build_payload(data),
-            'spore.params': self.build_params(**kwargs)
+            'spore.payload': self.build_payload(data, files),
+            'spore.params': self.build_params(**kwargs),
+            'spore.files': files
         })
 
         for predicate, middleware in self.middlewares:
@@ -389,6 +391,8 @@ class SporeMethod(object):
         self.check_status(response)
 
         for hook in hooks:
-            hook(response)
+            res = hook(response)
+            if res and isinstance(res, requests.models.Response):
+                response = res
 
         return response

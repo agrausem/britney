@@ -2,6 +2,7 @@
 
 from functools import partial
 import unittest
+from six import StringIO
 from britney.core import SporeMethod, Spore
 from britney import errors
 from britney.middleware.utils import Mock, fake_response
@@ -252,14 +253,26 @@ class TestMethodPayload(unittest.TestCase):
     def test_payload_error(self):
         method = self.method(required_payload=True)
         with self.assertRaises(errors.SporeMethodCallError) as call_error:
-            method.build_payload(data=[])
+            method.build_payload(data={}, files={})
 
         error = call_error.exception
         self.assertEqual(error.cause, 'Payload is required for this function')
 
-    def test_payload(self):
+    def test_payload_with_data(self):
         method = self.method(required_payload=True)
-        payload = method.build_payload(data={'test': 'data'})
+        payload = method.build_payload(data={'test': 'data'}, files={})
+        self.assertEqual(payload, {'test': 'data'})
+
+    def test_payload_with_files(self):
+        method = self.method(required_payload=True)
+        files = {'my_file': StringIO()}
+        payload = method.build_payload(data={}, files=files)
+        self.assertEqual(payload, {})
+
+    def test_payload_with_both(self):
+        method = self.method(required_payload=True)
+        files = {'my_file': StringIO()}
+        payload = method.build_payload(data={'test': 'data'}, files=files)
         self.assertEqual(payload, {'test': 'data'})
 
 
