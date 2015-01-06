@@ -32,7 +32,7 @@ class Auth(base.Middleware):
         """
         """
         if self.needs_auth(environ):
-            super(Auth, self).__call__(environ)
+            return super(Auth, self).__call__(environ)
 
 
 class Basic(Auth):
