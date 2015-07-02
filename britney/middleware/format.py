@@ -62,17 +62,6 @@ class Format(base.Middleware):
         response.data = self.load(response.text) if response.text else {}
         return response
 
-    def process_request(self, environ):
-        base.add_header(environ, *self.accept)
-        if environ['spore.payload']:
-            payload = self.dump(environ['spore.payload'])
-            environ['spore.payload'] = payload
-            base.add_header(environ, *self.content_length(payload))
-            base.add_header(environ, *self.content_type)
-
-    def process_response(self, response):
-        response.data = self.load(response.text)
-
 
 class Json(Format):
     """
