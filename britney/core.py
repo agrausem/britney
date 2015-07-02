@@ -12,6 +12,7 @@ for more information about SPORE descriptions
 
 import requests
 import requests.models
+from functools import reduce
 from requests.compat import urlparse
 import six
 
@@ -390,9 +391,8 @@ class SporeMethod(object):
 
         self.check_status(response)
 
-        for hook in hooks:
-            res = hook(response)
-            if res and isinstance(res, requests.models.Response):
-                response = res
+        res = reduce(lambda r, hook: hook(r), reversed(hooks), response)
+        if res and isinstance(res, requests.models.Response):
+            response = res
 
         return response
