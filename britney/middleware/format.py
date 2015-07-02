@@ -47,7 +47,7 @@ class Format(base.Middleware):
 
     def process_request(self, environ):
         base.add_header(environ, 'Accept', self.accept)
-        if environ['spore.payload']:
+        if environ['spore.payload'] and not environ['spore.payload_format']:
             self.process_payload(environ)
 
     def process_payload(self, environ):

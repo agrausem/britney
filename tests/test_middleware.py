@@ -119,7 +119,7 @@ class TestBaseFormatMiddleware(unittest.TestCase):
 
     def setUp(self):
         self.middleware = self.Quoted()
-        self.environ = {'spore.payload': None, 'spore.headers': {}}
+        self.environ = {'spore.payload': None, 'spore.headers': {}, 'spore.payload_format': ''}
 
     def test_process_request_without_payload(self):
         self.assertIsNone(self.middleware.process_request(self.environ))
@@ -148,8 +148,9 @@ class TestJsonFormatMiddleware(unittest.TestCase):
 
     def setUp(self):
         self.middleware = format_.Json()
-        self.environ = {'spore.payload': {'data': 'my_data'}, 
-                        'spore.headers': {}}
+        self.environ = {'spore.payload': {'data': 'my_data'},
+                        'spore.headers': {},
+                        'spore.payload_format': ''}
 
     def test_calling_middleware(self):
         callback = self.middleware(self.environ)
