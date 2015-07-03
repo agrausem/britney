@@ -22,6 +22,10 @@ This module requires a SPORE description of an API. Some descriptions for known 
 .. image:: https://img.shields.io/pypi/dm/britney.svg
     :target: https://crate.io/packages/britney/
 
+.. image:: https://landscape.io/github/agrausem/britney/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/agrausem/britney/master
+   :alt: Code Health
+
 
 
 
