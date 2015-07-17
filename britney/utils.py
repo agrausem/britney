@@ -9,7 +9,7 @@ import time
 import wsgiref.handlers
 
 
-VERSION = '0.4.0'
+VERSION = '0.5.0'
 
 
 def get_user_agent():

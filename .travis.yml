@@ -7,7 +7,7 @@ python:
 install:
  - pip install -r requirements.txt --use-mirrors
  - pip install -e .
- - pip install coverage nose --use-mirrors
+ - pip install coverage nose responses --use-mirrors
 script: nosetests --config=nose.cfg
 after_success:
  - pip install coveralls

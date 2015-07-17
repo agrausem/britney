@@ -100,7 +100,7 @@ class TestApiKeyAuth(unittest.TestCase):
                 key_value=self.callable_format, key='fbfryfrbfyrbfr',
                 user='test')
         self.middleware_callable(self.environ)
-        self.assertEqual(self.environ['spore.headers']['X-API-Key'], 
+        self.assertEqual(self.environ['spore.headers']['X-API-Key'],
                          'ApiKey fbfryfrbfyrbfr:test')
 
 
@@ -108,23 +108,18 @@ class TestBaseFormatMiddleware(unittest.TestCase):
 
     class Quoted(format_.Format):
 
+        content_type = 'quoted'
+        accept = 'quoted'
+
         def dump(self, data):
             return "'%s'" % data
 
         def load(self, data):
             return data.strip("'")
 
-        @property
-        def content_type(self):
-            return ('Content-Type', 'quoted')
-
-        @property
-        def accept(self):
-            return ('Accept', 'quoted')
-
     def setUp(self):
         self.middleware = self.Quoted()
-        self.environ = {'spore.payload': None, 'spore.headers': {}}
+        self.environ = {'spore.payload': None, 'spore.headers': {}, 'spore.payload_format': ''}
 
     def test_process_request_without_payload(self):
         self.assertIsNone(self.middleware.process_request(self.environ))
@@ -135,17 +130,17 @@ class TestBaseFormatMiddleware(unittest.TestCase):
         self.environ['spore.payload'] = 'my_payload'
         self.assertIsNone(self.middleware.process_request(self.environ))
         self.assertDictEqual(self.environ['spore.headers'], {
-            'Accept': 'quoted', 
+            'Accept': 'quoted',
             'Content-Length': len("'my_payload'"),
             'Content-Type': 'quoted'
         })
         self.assertEqual(self.environ['spore.payload'], "'my_payload'")
 
     def test_process_response(self):
-       Response = type('Response', (object, ), {'text': "'my_content'", 
+       Response = type('Response', (object, ), {'text': "'my_content'",
            'data': ""})
        response = Response()
-       self.assertIsNone(self.middleware.process_response(response))
+       self.assertIsNotNone(self.middleware.process_response(response))
        self.assertEqual(response.data, "my_content")
 
 
@@ -153,8 +148,9 @@ class TestJsonFormatMiddleware(unittest.TestCase):
 
     def setUp(self):
         self.middleware = format_.Json()
-        self.environ = {'spore.payload': {'data': 'my_data'}, 
-                        'spore.headers': {}}
+        self.environ = {'spore.payload': {'data': 'my_data'},
+                        'spore.headers': {},
+                        'spore.payload_format': ''}
 
     def test_calling_middleware(self):
         callback = self.middleware(self.environ)

@@ -12,6 +12,7 @@ for more information about SPORE descriptions
 
 import requests
 import requests.models
+from functools import reduce
 from requests.compat import urlparse
 import six
 
@@ -162,7 +163,7 @@ class SporeMethod(object):
     :param formats: a list of formats accepted by the REST Web Service for this
     method. This parameter replaces the global formats set whole client
     (defaults to None)
-    :param base_url: a specific base url for this method. This parameter 
+    :param base_url: a specific base url for this method. This parameter
     replaces the base api url set for the whole client (defaults to '')
     :param documentation: documentation for this method
     :param global_authentication: a boolean that enables authentication for the
@@ -281,6 +282,7 @@ class SporeMethod(object):
             'spore.authentication': self.authentication,
             'spore.params': '',
             'spore.payload': '',
+            'spore.payload_format': '',
             'spore.errors': '',
             'spore.headers': {},
             'spore.format': self.formats,
@@ -390,9 +392,8 @@ class SporeMethod(object):
 
         self.check_status(response)
 
-        for hook in hooks:
-            res = hook(response)
-            if res and isinstance(res, requests.models.Response):
-                response = res
+        res = reduce(lambda r, hook: hook(r), reversed(hooks), response)
+        if res and isinstance(res, requests.models.Response):
+            response = res
 
         return response

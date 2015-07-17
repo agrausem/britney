@@ -16,13 +16,15 @@ This module requires a SPORE description of an API. Some descriptions for known 
 .. image:: https://coveralls.io/repos/agrausem/britney/badge.png?branch=master
     :target: https://coveralls.io/r/agrausem/britney?branch=master
 
-.. image:: https://pypip.in/v/britney/badge.png
+.. image:: https://img.shields.io/pypi/v/britney.svg
     :target: https://crate.io/packages/britney/
-    :alt: Latest PyPI version
 
-.. image:: https://pypip.in/d/britney/badge.png
+.. image:: https://img.shields.io/pypi/dm/britney.svg
     :target: https://crate.io/packages/britney/
-    :alt: Number of PyPI downloads
+
+.. image:: https://landscape.io/github/agrausem/britney/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/agrausem/britney/master
+   :alt: Code Health
 
 
 
