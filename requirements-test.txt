@@ -1,0 +1,4 @@
+responses
+coverage
+pytest
+pytest-cov

@@ -1,14 +1,14 @@
 language: python
 python:
  - "2.7"
- - "3.2"
- - "3.3"
  - "3.4"
+ - "3.5"
+ - "3.6"
 install:
- - pip install -r requirements.txt --use-mirrors
+ - pip install -r requirements.txt
  - pip install -e .
- - pip install coverage nose responses --use-mirrors
-script: nosetests --config=nose.cfg
+ - pip install -r requirements-dev.txt
+script: py.test --cov=britney
 after_success:
  - pip install coveralls
  - coveralls
