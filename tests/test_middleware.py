@@ -131,7 +131,7 @@ class TestBaseFormatMiddleware(unittest.TestCase):
         self.assertIsNone(self.middleware.process_request(self.environ))
         self.assertDictEqual(self.environ['spore.headers'], {
             'Accept': 'quoted',
-            'Content-Length': len("'my_payload'"),
+            'Content-Length': '12',
             'Content-Type': 'quoted'
         })
         self.assertEqual(self.environ['spore.payload'], "'my_payload'")
@@ -157,7 +157,7 @@ class TestJsonFormatMiddleware(unittest.TestCase):
         self.assertIsInstance(callback, partial)
         self.assertDictEqual(self.environ['spore.headers'], {
             'Accept': 'application/json',
-            'Content-Length': len('{"data": "my_data"}'),
+            'Content-Length': '19',
             'Content-Type': 'application/json'
         })
         self.assertEqual(self.environ['spore.payload'], '{"data": "my_data"}')

@@ -43,7 +43,7 @@ class Format(base.Middleware):
         :param content:
         :return: content length header information
         """
-        return len(content)
+        return str(len(content))
 
     def process_request(self, environ):
         base.add_header(environ, 'Accept', self.accept)
