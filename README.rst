@@ -17,17 +17,21 @@ This module requires a SPORE description of an API. Some descriptions for known 
     :target: https://coveralls.io/r/agrausem/britney?branch=master
 
 .. image:: https://img.shields.io/pypi/v/britney.svg
-    :target: https://crate.io/packages/britney/
+    :target: https://pypi.python.org/pypi/britney
 
 .. image:: https://img.shields.io/pypi/dm/britney.svg
-    :target: https://crate.io/packages/britney/
+    :target: https://pypi.python.org/pypi/britney
 
 .. image:: https://landscape.io/github/agrausem/britney/master/landscape.svg?style=flat
    :target: https://landscape.io/github/agrausem/britney/master
    :alt: Code Health
 
+.. image:: https://img.shields.io/pypi/pyversions/britney.svg
+    :target: https://pypi.python.org/pypi/britney
+    :alt: Python Version
 
-
+.. image:: https://img.shields.io/pypi/format/britney.svg
+    :target: https://github.com/agrausem/britney/
 
 Install
 =======
