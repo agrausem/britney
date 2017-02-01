@@ -10,10 +10,10 @@ See https://github.com/SPORE/specifications/blob/master/spore_description.pod
 for more information about SPORE descriptions
 """
 
-import requests
-import requests.models
 from functools import reduce
+import requests
 from requests.compat import urlparse
+import requests.models
 import six
 
 from . import errors
@@ -48,7 +48,7 @@ class Spore(object):
             spec_errors['base_url'] = 'A base URL to the REST Web Service is \
             required'
 
-        if not 'methods' in kwargs:
+        if 'methods' not in kwargs:
             spec_errors['methods'] = 'One method is required to create the \
             client'
         else:
@@ -152,11 +152,12 @@ class SporeMethod(object):
     url path (defaults to None)
     :param optional_params: a list of parameters that will be used to build
     the request query
-    :param expected_status: a list of expected status for the response (defaults
-    to None).
+    :param expected_status: a list of expected status for the response
+    (defaults to None).
     :param description: a short description for the method (defaults to '')
     :param middlewares: a list of the middlewares that will be applied to the
-    request and the response. See :py:class:~`britney.middleware.BaseMiddleware`
+    request and the response.
+    See :py:class:~`britney.middleware.BaseMiddleware`
     :param authentication: boolean to set authentication on the method. This
     param replaces the global authentication parameter set for the whole client
     on this particular method (defaults to None)
@@ -209,8 +210,9 @@ class SporeMethod(object):
                  required_params=None, optional_params=None,
                  expected_status=None, required_payload=False, description='',
                  authentication=None, formats=None, base_url='',
-                 documentation='', middlewares=None, global_authentication=None,
-                 global_formats=None, defaults=None):
+                 documentation='', middlewares=None,
+                 global_authentication=None, global_formats=None,
+                 defaults=None):
 
         self.name = name
         self.method = method
@@ -241,9 +243,6 @@ class SporeMethod(object):
     def base_environ(self):
         """ Builds the base environment dictionnary describing the request to
         be sent to the REST Web Service.
-        See https://github.com/SPORE/specifications/blob/master/spore_implementation.pod
-        for more information about the keys defined here. You can also check
-        the WSGI environment keys http://wsgi.readthedocs.org/en/latest/definitions.html
         """
 
         parsed_base_url = urlparse(self.base_url)
@@ -326,17 +325,18 @@ class SporeMethod(object):
         else:
             all_args = set(passed_args)
 
-        # nothing to do here
+        # nothing to do here
         if not all_params and not all_args:
             return []
 
         # some required parameters are missing
         if not req_params.issubset(all_args):
             expected = req_params - passed_args
-            raise errors.SporeMethodCallError('Required parameters are missing',
-                                              expected=expected)
+            raise errors.SporeMethodCallError(
+                'Required parameters are missing', expected=expected
+            )
 
-        # too much arguments passed to func
+        # too much arguments passed to func
         if all_args - all_params:
             expected = passed_args - all_params
             raise errors.SporeMethodCallError('Too much parameter',
